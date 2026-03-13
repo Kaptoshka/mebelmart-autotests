@@ -2,9 +2,9 @@ package pages
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
-	"autotests/internal/logger"
 	"autotests/pkg/elements"
 
 	"github.com/playwright-community/playwright-go"
@@ -15,6 +15,7 @@ type BasePage struct {
 	BaseURL string
 	Timeout time.Duration
 	Name    string
+	log     *slog.Logger
 }
 
 func New(
@@ -22,19 +23,21 @@ func New(
 	baseURL string,
 	timeout time.Duration,
 	name string,
+	log *slog.Logger,
 ) *BasePage {
 	return &BasePage{
 		Page:    page,
 		BaseURL: baseURL,
 		Timeout: timeout,
 		Name:    name,
+		log:     log,
 	}
 }
 
 func (p *BasePage) Navigate(path string) error {
 	url := p.BaseURL + path
 
-	logger.WithPage(p.Name).Info("navigating to", "url", url)
+	p.log.Info("navigating to", "url", url)
 
 	if _, err := p.Page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateNetworkidle,
@@ -47,7 +50,7 @@ func (p *BasePage) Navigate(path string) error {
 }
 
 func (p *BasePage) WaitForURL(urlPattern string) error {
-	logger.WithPage(p.Name).Info("waiting for URL", "pattern", urlPattern)
+	p.log.Info("waiting for URL", "pattern", urlPattern)
 
 	if err := p.Page.WaitForURL(urlPattern, playwright.PageWaitForURLOptions{
 		Timeout: playwright.Float(float64(p.Timeout)),
@@ -72,15 +75,15 @@ func (p *BasePage) GetCurrentURL() string {
 }
 
 func (p *BasePage) CSS(selector, description string) *elements.Element {
-	return elements.NewCSS(p.Page, selector, description, p.Timeout)
+	return elements.NewCSS(p.Page, selector, description, p.Timeout, p.log)
 }
 
 func (p *BasePage) XPath(selector, description string) *elements.Element {
-	return elements.NewXPath(p.Page, selector, description, p.Timeout)
+	return elements.NewXPath(p.Page, selector, description, p.Timeout, p.log)
 }
 
 func (p *BasePage) WaitForNetworkIdle() error {
-	logger.WithPage(p.Name).Debug("waiting for network idle")
+	p.log.Debug("waiting for network idle")
 
 	if err := p.Page.WaitForLoadState(playwright.PageWaitForLoadStateOptions{
 		State:   playwright.LoadStateNetworkidle,

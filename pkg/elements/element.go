@@ -2,9 +2,8 @@ package elements
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
-
-	"autotests/internal/logger"
 
 	"github.com/playwright-community/playwright-go"
 )
@@ -21,6 +20,7 @@ type Element struct {
 	locator     playwright.Locator
 	description string
 	timeout     time.Duration
+	log         *slog.Logger
 }
 
 func NewCSS(
@@ -28,8 +28,9 @@ func NewCSS(
 	selector string,
 	description string,
 	timeout time.Duration,
+	log *slog.Logger,
 ) *Element {
-	return newElement(page, selector, description, CSS, timeout)
+	return newElement(page, selector, description, CSS, timeout, log)
 }
 
 func NewXPath(
@@ -37,8 +38,9 @@ func NewXPath(
 	xpath string,
 	description string,
 	timeout time.Duration,
+	log *slog.Logger,
 ) *Element {
-	return newElement(page, "xpath"+xpath, description, XPath, timeout)
+	return newElement(page, "xpath"+xpath, description, XPath, timeout, log)
 }
 
 func newElement(
@@ -47,19 +49,21 @@ func newElement(
 	description string,
 	lt LocatorType,
 	timeout time.Duration,
+	log *slog.Logger,
 ) *Element {
-	logger.Debug("Creating element", "element", description, "type", lt, "selector", selector)
+	log.Debug("Creating element", "element", description, "type", lt, "selector", selector)
 
 	return &Element{
 		page:        page,
 		locator:     page.Locator(selector),
 		description: description,
 		timeout:     timeout,
+		log:         log,
 	}
 }
 
 func (e *Element) WaitForVisible() error {
-	logger.Debug("waiting for element to be visible", "element", e.description)
+	e.log.Debug("waiting for element to be visible", "element", e.description)
 
 	if err := e.locator.WaitFor(playwright.LocatorWaitForOptions{
 		State:   playwright.WaitForSelectorStateVisible,
@@ -72,7 +76,7 @@ func (e *Element) WaitForVisible() error {
 }
 
 func (e *Element) WaitForHidden() error {
-	logger.Debug("waiting for element to be hidden", "element", e.description)
+	e.log.Debug("waiting for element to be hidden", "element", e.description)
 
 	if err := e.locator.WaitFor(playwright.LocatorWaitForOptions{
 		State:   playwright.WaitForSelectorStateHidden,
@@ -85,7 +89,7 @@ func (e *Element) WaitForHidden() error {
 }
 
 func (e *Element) Click() error {
-	logger.Debug("clicking element", "element", e.description)
+	e.log.Debug("clicking element", "element", e.description)
 
 	if err := e.WaitForVisible(); err != nil {
 		return err
@@ -95,13 +99,13 @@ func (e *Element) Click() error {
 		return fmt.Errorf("failed to click [%s]: %w", e.description, err)
 	}
 
-	logger.Debug("clicked element", "element", e.description)
+	e.log.Debug("clicked element", "element", e.description)
 
 	return nil
 }
 
 func (e *Element) Fill(text string) error {
-	logger.Debug("filling element", "element", e.description, "text", text)
+	e.log.Debug("filling element", "element", e.description, "text", text)
 
 	if err := e.WaitForVisible(); err != nil {
 		return err
@@ -115,7 +119,7 @@ func (e *Element) Fill(text string) error {
 }
 
 func (e *Element) Clear() error {
-	logger.Debug("clearing element", "element", e.description)
+	e.log.Debug("clearing element", "element", e.description)
 
 	if err := e.WaitForVisible(); err != nil {
 		return err
@@ -138,7 +142,7 @@ func (e *Element) GetText() (string, error) {
 		return "", fmt.Errorf("failed to get text from [%s]: %w", e.description, err)
 	}
 
-	logger.Debug("got text from element", "element", e.description, "text", text)
+	e.log.Debug("got text from element", "element", e.description, "text", text)
 
 	return text, nil
 }
@@ -180,7 +184,7 @@ func (e *Element) IsEnabled() (bool, error) {
 }
 
 func (e *Element) SelectOption(value string) error {
-	logger.Debug("selecting option", "value", value, "element", e.description)
+	e.log.Debug("selecting option", "value", value, "element", e.description)
 	if err := e.WaitForVisible(); err != nil {
 		return err
 	}
@@ -201,7 +205,7 @@ func (e *Element) SelectOption(value string) error {
 }
 
 func (e *Element) Hover() error {
-	logger.Debug("hovering over element", "element", e.description)
+	e.log.Debug("hovering over element", "element", e.description)
 
 	if err := e.WaitForVisible(); err != nil {
 		return err
@@ -215,7 +219,7 @@ func (e *Element) Hover() error {
 }
 
 func (e *Element) ScrollIntoView() error {
-	logger.Debug("scrolling element into view", "element", e.description)
+	e.log.Debug("scrolling element into view", "element", e.description)
 
 	if err := e.locator.ScrollIntoViewIfNeeded(); err != nil {
 		return fmt.Errorf(

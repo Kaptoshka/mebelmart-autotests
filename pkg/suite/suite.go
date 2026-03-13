@@ -2,6 +2,7 @@ package suite
 
 import (
 	"fmt"
+	"log/slog"
 	"testing"
 
 	"autotests/internal/browser"
@@ -18,11 +19,11 @@ type TestSuite struct {
 	Screenshot *screenshot.Service
 	Reporter   *reporter.AllureReporter
 	SuiteName  string
+	log        *slog.Logger
 }
 
 func New(t *testing.T, suiteName string) *TestSuite {
 	cfg := config.Load()
-	logger.Init(cfg.LogLevel)
 
 	return &TestSuite{
 		T:         t,
@@ -32,37 +33,38 @@ func New(t *testing.T, suiteName string) *TestSuite {
 }
 
 func (s *TestSuite) Setup(testName string) error {
-	s.Screenshot = screenshot.New(s.Config.ScreenshotsDir)
-	s.Reporter = reporter.New(s.Config.AllureReportDir, testName, s.SuiteName)
+	s.log = logger.ForTest(s.T)
+	s.Screenshot = screenshot.New(s.Config.ScreenshotsDir, s.log)
+	s.Reporter = reporter.New(s.Config.AllureReportDir, testName, s.SuiteName, s.log)
 
-	s.Browser = browser.New(s.Config)
+	s.Browser = browser.New(s.Config, s.log)
 	if err := s.Browser.Launch(); err != nil {
 		s.Reporter.SetBroken(err)
 		_ = s.Reporter.Finalize()
 		return fmt.Errorf("browser setup failed: %w", err)
 	}
 
-	logger.Info("test setup complete", "test", testName)
+	s.log.Info("test setup complete", "test", testName)
 	return nil
 }
 
 func (s *TestSuite) Teardown(testName string, testErr *error) {
 	if testErr != nil && *testErr != nil {
-		logger.Warn("test FAILED -- capturing screenshot", "test", testName)
+		s.log.Warn("test FAILED -- capturing screenshot", "test", testName)
 		if bytes, err := s.Screenshot.CaptureAsBites(s.Browser.Page); err == nil {
 			_ = s.Reporter.AddScreenshot(bytes, fmt.Sprintf("Failure: %s", testName))
 		} else {
-			logger.Warn("failed to capture screenshot", "err", err)
+			s.log.Warn("failed to capture screenshot", "err", err)
 		}
 		s.Reporter.SetFailed(*testErr)
 	}
 
 	if err := s.Reporter.Finalize(); err != nil {
-		logger.Warn("could not finalize Allure report", "err", err)
+		s.log.Warn("could not finalize Allure report", "err", err)
 	}
 
 	s.Browser.Close()
-	logger.Info("test teardown complete", "test", testName)
+	s.log.Info("test teardown complete", "test", testName)
 }
 
 func (s *TestSuite) Step(name string, fn func() error) error {

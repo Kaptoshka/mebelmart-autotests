@@ -3,11 +3,10 @@ package reporter
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
-
-	"autotests/internal/logger"
 
 	uuidG "github.com/google/uuid"
 )
@@ -66,16 +65,17 @@ type AllureReporter struct {
 	result    *TestResult
 	stepStack []*Step
 	startTime int64
+	log       *slog.Logger
 }
 
-func New(outputDir, testName, suiteName string) *AllureReporter {
+func New(outputDir, testName, suiteName string, log *slog.Logger) *AllureReporter {
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
-		logger.Warn("could not create allure results dir", "err", err)
+		log.Warn("could not create allure results dir", "err", err)
 	}
 
 	uuid, err := uuidG.NewV7()
 	if err != nil {
-		logger.Warn("could not generate uuid", "err", err)
+		log.Warn("could not generate uuid", "err", err)
 	}
 
 	uuidStr := uuid.String()
@@ -84,6 +84,7 @@ func New(outputDir, testName, suiteName string) *AllureReporter {
 	return &AllureReporter{
 		outputDir: outputDir,
 		startTime: now,
+		log:       log,
 		result: &TestResult{
 			UUID:      uuidStr,
 			HistoryID: testName,
@@ -101,7 +102,7 @@ func New(outputDir, testName, suiteName string) *AllureReporter {
 }
 
 func (r *AllureReporter) StartStep(name string) {
-	logger.Step(name)
+	r.log.Info(name)
 	step := &Step{
 		Name:   name,
 		Status: StatusPassed,
@@ -131,7 +132,7 @@ func (r *AllureReporter) StopStep(status Status) {
 func (r *AllureReporter) AddScreenshot(screenshotBytes []byte, name string) error {
 	uuid, err := uuidG.NewV7()
 	if err != nil {
-		logger.Warn("could not generate uuid", "err", err)
+		r.log.Warn("could not generate uuid", "err", err)
 	}
 	filename := fmt.Sprintf("%s-%d", uuid.String(), time.Now().UnixMilli())
 	destPath := filepath.Join(r.outputDir, filename)
@@ -153,7 +154,7 @@ func (r *AllureReporter) AddScreenshot(screenshotBytes []byte, name string) erro
 		r.result.Attachments = append(r.result.Attachments, attachment)
 	}
 
-	logger.Info("screenshot attached to allure report", "name", name)
+	r.log.Info("screenshot attached to allure report", "name", name)
 	return nil
 }
 
@@ -202,6 +203,6 @@ func (r *AllureReporter) Finalize() error {
 		return fmt.Errorf("failed to write allure result: %w", err)
 	}
 
-	logger.Info("allure result written", "file", filename, "status", r.result.Status)
+	r.log.Info("allure result written", "file", filename, "status", r.result.Status)
 	return nil
 }

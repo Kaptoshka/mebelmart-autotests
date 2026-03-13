@@ -2,9 +2,9 @@ package browser
 
 import (
 	"fmt"
+	"log/slog"
 
 	"autotests/internal/config"
-	"autotests/internal/logger"
 
 	"github.com/playwright-community/playwright-go"
 )
@@ -15,16 +15,18 @@ type Manager struct {
 	context playwright.BrowserContext
 	Page    playwright.Page
 	cfg     *config.Config
+	log     *slog.Logger
 }
 
-func New(cfg *config.Config) *Manager {
+func New(cfg *config.Config, log *slog.Logger) *Manager {
 	return &Manager{
 		cfg: cfg,
+		log: log,
 	}
 }
 
 func (m *Manager) Launch() error {
-	logger.Info("Launching Playwright...")
+	m.log.Info("Launching Playwright...")
 
 	pw, err := playwright.Run()
 	if err != nil {
@@ -37,7 +39,7 @@ func (m *Manager) Launch() error {
 		return err
 	}
 
-	logger.Info("Starting browser", "browser", m.cfg.Browser, "headless", m.cfg.Headless)
+	m.log.Info("Starting browser", "browser", m.cfg.Browser, "headless", m.cfg.Headless)
 
 	slowMo := m.cfg.SlowMo.Milliseconds()
 	browser, err := browserType.Launch(playwright.BrowserTypeLaunchOptions{
@@ -69,25 +71,25 @@ func (m *Manager) Launch() error {
 	page.SetDefaultNavigationTimeout(float64(m.cfg.Timeout.Milliseconds()))
 	page.SetDefaultTimeout(float64(m.cfg.Timeout.Milliseconds()))
 
-	logger.Info("Browser launched successfully")
+	m.log.Info("Browser launched successfully")
 	return nil
 }
 
 func (m *Manager) Close() {
 	if m.context != nil {
-		logger.Debug("Closing browser context")
+		m.log.Debug("Closing browser context")
 	}
 	if m.browser != nil {
-		logger.Debug("Closing browser")
+		m.log.Debug("Closing browser")
 	}
 	if m.pw != nil {
-		logger.Debug("Stopping playwright")
+		m.log.Debug("Stopping playwright")
 		m.pw.Stop()
 	}
 }
 
 func (m *Manager) NavigateTo(url string) error {
-	logger.Info("Navigating to", "url", url)
+	m.log.Info("Navigating to", "url", url)
 	if _, err := m.Page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateNetworkidle,
 	}); err != nil {

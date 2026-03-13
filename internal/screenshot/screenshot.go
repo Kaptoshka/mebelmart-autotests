@@ -2,24 +2,24 @@ package screenshot
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
-
-	"autotests/internal/logger"
 
 	"github.com/playwright-community/playwright-go"
 )
 
 type Service struct {
 	outputDir string
+	log       *slog.Logger
 }
 
-func New(outputDir string) *Service {
+func New(outputDir string, log *slog.Logger) *Service {
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
-		logger.Warn("could not create screenshot dir", "err", err)
+		log.Warn("could not create screenshot dir", "err", err)
 	}
-	return &Service{outputDir: outputDir}
+	return &Service{outputDir: outputDir, log: log}
 }
 
 func (s *Service) Capture(page playwright.Page, name string) (string, error) {
@@ -27,7 +27,7 @@ func (s *Service) Capture(page playwright.Page, name string) (string, error) {
 	fileName := fmt.Sprintf("%s_%s", sanitizeName(name), timestamp)
 	fullPath := filepath.Join(s.outputDir, fileName)
 
-	logger.Info("taking screenshot", "path", fullPath)
+	s.log.Info("taking screenshot", "path", fullPath)
 
 	_, err := page.Screenshot(playwright.PageScreenshotOptions{
 		Path:     playwright.String(fullPath),
@@ -37,7 +37,7 @@ func (s *Service) Capture(page playwright.Page, name string) (string, error) {
 		return "", fmt.Errorf("screenshot failed: %w", err)
 	}
 
-	logger.Info("screenshot saved", "path", fullPath)
+	s.log.Info("screenshot saved", "path", fullPath)
 	return fullPath, nil
 }
 
