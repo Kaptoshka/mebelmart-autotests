@@ -11,6 +11,7 @@ type BrowserType string
 const (
 	BrowserChromium BrowserType = "chromium"
 	BrowserFirefox  BrowserType = "firefox"
+	BrowserWebKit   BrowserType = "webkit"
 )
 
 type Config struct {
@@ -44,8 +45,12 @@ func Load() *Config {
 func getBrowserType() BrowserType {
 	b := getEnv("BROWSER", "chrome")
 	switch BrowserType(b) {
+	case BrowserChromium:
+		return BrowserChromium
 	case BrowserFirefox:
 		return BrowserFirefox
+	case BrowserWebKit:
+		return BrowserWebKit
 	default:
 		return BrowserChromium
 	}

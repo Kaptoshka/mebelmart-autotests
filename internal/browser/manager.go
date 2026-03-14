@@ -107,6 +107,8 @@ func (m *Manager) getBrowserType() (playwright.BrowserType, error) {
 		return m.pw.Firefox, nil
 	case config.BrowserChromium:
 		return m.pw.Chromium, nil
+	case config.BrowserWebKit:
+		return m.pw.WebKit, nil
 	default:
 		return nil, fmt.Errorf("unsupported browser: %s", m.cfg.Browser)
 	}
@@ -130,6 +132,13 @@ func (m *Manager) getBrowserLaunchOptions() playwright.BrowserTypeLaunchOptions 
 			m.log.Info("using custom Firefox path", "path", execPath)
 			opts.ExecutablePath = playwright.String(execPath)
 		}
+	case config.BrowserWebKit:
+		if execPath := os.Getenv("PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH"); execPath != "" {
+			m.log.Info("Using custom WebKit path", "path", execPath)
+			opts.ExecutablePath = playwright.String(execPath)
+		}
+	default:
+		m.log.Warn("Unsupported browser", "browser", m.cfg.Browser)
 	}
 
 	return opts
