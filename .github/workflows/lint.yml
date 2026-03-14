@@ -1,0 +1,54 @@
+name: Lint
+
+on:
+    push:
+        branches: [main, master]
+    pull_request:
+        branches: [main, master]
+
+jobs:
+    lint-go:
+        name: Go
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-go@v5
+              with:
+                  go-version-file: go.mod
+                  cache: true
+
+            - name: golangci-lint
+              uses: golangci/golangci-lint-action@v6
+              with:
+                  version: v1.61.0
+                  args: --config=.golangci.yml
+
+    lint-nix:
+        name: Nix
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: DeterminateSystems/nix-installer-action@v14
+
+            - name: nixpkgs-fmt -- format
+              run: nix run nixpkgs#nixpkgs-fmt -- --check .
+
+            - name: statix -- static analysis
+              run: nix run nixpkgs#statix -- check .
+
+            - name: deadnix -- search for unused code
+              run: nix run nixpkgs#deadnix -- --fail .
+
+    lint-yaml:
+        name: YAML
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: yamllint
+              uses: ibiqlik/action-yamllint@v3
+              with:
+                  config-file: .yamllint.yml
+                  file-or-dir: .
+                  strict: false
