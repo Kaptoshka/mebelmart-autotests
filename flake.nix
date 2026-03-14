@@ -34,6 +34,7 @@
             statix
             deadnix
             nixpkgs-fmt
+            gotools
 
             nodejs
             playwright-driver.browsers
