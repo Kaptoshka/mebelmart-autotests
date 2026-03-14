@@ -36,7 +36,7 @@
 
           shellHook = ''
             echo "Go GUI Autotest Framework"
-            echo "  Go version: $(go versions)"
+            echo "  Go version: $(go version)"
             echo "  Browser: chromium-${chromium-rev} (Nix store)"
             echo "  Browser: firefox-${firefox-rev} (Nix store)"
 
