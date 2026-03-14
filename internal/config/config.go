@@ -14,6 +14,13 @@ const (
 	BrowserWebKit   BrowserType = "webkit"
 )
 
+const (
+	defaultTimeoutMS      = 30000
+	defaultSlowMoMS       = 0
+	defaultViewportWidth  = 1920
+	defaultViewportHeight = 1080
+)
+
 type Config struct {
 	Browser         BrowserType
 	Headless        bool
@@ -32,13 +39,13 @@ func Load() *Config {
 		Browser:         getBrowserType(),
 		Headless:        getBool("HEADLESS", true),
 		BaseURL:         getEnv("BASE_URL", "https://example.com"),
-		Timeout:         getDuration("TIMEOUT_MS", 30000),
-		SlowMo:          getDuration("SLOW_MO_MS", 0),
+		Timeout:         getDuration("TIMEOUT_MS", defaultTimeoutMS),
+		SlowMo:          getDuration("SLOW_MO_MS", defaultSlowMoMS),
 		ScreenshotsDir:  getEnv("SCREENSHOTS_DIR", "./screenshots"),
 		AllureReportDir: getEnv("ALLURE_RESULTS_DIR", "./allure-results"),
 		LogLevel:        getEnv("LOG_LEVEL", "info"),
-		ViewportWidth:   getInt("VIEWPORT_WIDTH", 1920),
-		ViewportHeight:  getInt("VIEWPORT_HEIGHT", 1080),
+		ViewportWidth:   getInt("VIEWPORT_WIDTH", defaultViewportWidth),
+		ViewportHeight:  getInt("VIEWPORT_HEIGHT", defaultViewportHeight),
 	}
 }
 
