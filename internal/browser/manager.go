@@ -3,6 +3,7 @@ package browser
 import (
 	"fmt"
 	"log/slog"
+	"os"
 
 	"autotests/internal/config"
 
@@ -41,11 +42,7 @@ func (m *Manager) Launch() error {
 
 	m.log.Info("Starting browser", "browser", m.cfg.Browser, "headless", m.cfg.Headless)
 
-	slowMo := m.cfg.SlowMo.Milliseconds()
-	browser, err := browserType.Launch(playwright.BrowserTypeLaunchOptions{
-		Headless: playwright.Bool(m.cfg.Headless),
-		SlowMo:   playwright.Float(float64(slowMo)),
-	})
+	browser, err := browserType.Launch(m.getBrowserLaunchOptions())
 	if err != nil {
 		return fmt.Errorf("could not launch browser: %w", err)
 	}
@@ -107,4 +104,27 @@ func (m *Manager) getBrowserType() (playwright.BrowserType, error) {
 	default:
 		return nil, fmt.Errorf("unsupported browser: %s", m.cfg.Browser)
 	}
+}
+
+func (m *Manager) getBrowserLaunchOptions() playwright.BrowserTypeLaunchOptions {
+	slowMo := m.cfg.SlowMo.Milliseconds()
+	opts := playwright.BrowserTypeLaunchOptions{
+		Headless: playwright.Bool(m.cfg.Headless),
+		SlowMo:   playwright.Float(float64(slowMo)),
+	}
+
+	switch m.cfg.Browser {
+	case config.BrowserChromium:
+		if execPath := os.Getenv("PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"); execPath != "" {
+			m.log.Info("using custom Chromium path", "path", execPath)
+			opts.ExecutablePath = playwright.String(execPath)
+		}
+	case config.BrowserFirefox:
+		if execPath := os.Getenv("PLAYWRIGHT_FIREFOX_EXECUTABLE_PATH"); execPath != "" {
+			m.log.Info("using custom Firefox path", "path", execPath)
+			opts.ExecutablePath = playwright.String(execPath)
+		}
+	}
+
+	return opts
 }
