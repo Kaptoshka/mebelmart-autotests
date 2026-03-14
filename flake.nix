@@ -53,7 +53,7 @@
 
             export PLAYWRIGHT_NODEJS_PATH="${pkgs.nodejs}/bin/node"
 
-            export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH="${pkgs.playwright-driver.browsers}/chromium-${chromium-rev}/chrome-linux/chrome"
+            export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH="${pkgs.playwright-driver.browsers}/chromium-${chromium-rev}/chrome-linux64/chrome"
             export PLAYWRIGHT_FIREFOX_EXECUTABLE_PATH="${pkgs.playwright-driver.browsers}/firefox-${firefox-rev}/firefox/firefox"
             export PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH="${pkgs.playwright-driver.browsers}/webkit-${webkit-rev}/pw-run.sh"
           '';
