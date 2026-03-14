@@ -15,7 +15,7 @@ type BasePage struct {
 	BaseURL string
 	Timeout time.Duration
 	Name    string
-	log     *slog.Logger
+	Log     *slog.Logger
 }
 
 func New(
@@ -30,14 +30,14 @@ func New(
 		BaseURL: baseURL,
 		Timeout: timeout,
 		Name:    name,
-		log:     log,
+		Log:     log,
 	}
 }
 
 func (p *BasePage) Navigate(path string) error {
 	url := p.BaseURL + path
 
-	p.log.Info("navigating to", "url", url)
+	p.Log.Info("navigating to", "url", url)
 
 	if _, err := p.Page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateNetworkidle,
@@ -50,7 +50,7 @@ func (p *BasePage) Navigate(path string) error {
 }
 
 func (p *BasePage) WaitForURL(urlPattern string) error {
-	p.log.Info("waiting for URL", "pattern", urlPattern)
+	p.Log.Info("waiting for URL", "pattern", urlPattern)
 
 	if err := p.Page.WaitForURL(urlPattern, playwright.PageWaitForURLOptions{
 		Timeout: playwright.Float(float64(p.Timeout)),
@@ -75,15 +75,15 @@ func (p *BasePage) GetCurrentURL() string {
 }
 
 func (p *BasePage) CSS(selector, description string) *elements.Element {
-	return elements.NewCSS(p.Page, selector, description, p.Timeout, p.log)
+	return elements.NewCSS(p.Page, selector, description, p.Timeout, p.Log)
 }
 
 func (p *BasePage) XPath(selector, description string) *elements.Element {
-	return elements.NewXPath(p.Page, selector, description, p.Timeout, p.log)
+	return elements.NewXPath(p.Page, selector, description, p.Timeout, p.Log)
 }
 
 func (p *BasePage) WaitForNetworkIdle() error {
-	p.log.Debug("waiting for network idle")
+	p.Log.Debug("waiting for network idle")
 
 	if err := p.Page.WaitForLoadState(playwright.PageWaitForLoadStateOptions{
 		State:   playwright.LoadStateNetworkidle,

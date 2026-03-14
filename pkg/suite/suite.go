@@ -19,7 +19,7 @@ type TestSuite struct {
 	Screenshot *screenshot.Service
 	Reporter   *reporter.AllureReporter
 	SuiteName  string
-	log        *slog.Logger
+	Log        *slog.Logger
 }
 
 func New(t *testing.T, suiteName string) *TestSuite {
@@ -33,38 +33,38 @@ func New(t *testing.T, suiteName string) *TestSuite {
 }
 
 func (s *TestSuite) Setup(testName string) error {
-	s.log = logger.ForTest(s.T)
-	s.Screenshot = screenshot.New(s.Config.ScreenshotsDir, s.log)
-	s.Reporter = reporter.New(s.Config.AllureReportDir, testName, s.SuiteName, s.log)
+	s.Log = logger.ForTest(s.T)
+	s.Screenshot = screenshot.New(s.Config.ScreenshotsDir, s.Log)
+	s.Reporter = reporter.New(s.Config.AllureReportDir, testName, s.SuiteName, s.Log)
 
-	s.Browser = browser.New(s.Config, s.log)
+	s.Browser = browser.New(s.Config, s.Log)
 	if err := s.Browser.Launch(); err != nil {
 		s.Reporter.SetBroken(err)
 		_ = s.Reporter.Finalize()
 		return fmt.Errorf("browser setup failed: %w", err)
 	}
 
-	s.log.Info("test setup complete", "test", testName)
+	s.Log.Info("test setup complete", "test", testName)
 	return nil
 }
 
 func (s *TestSuite) Teardown(testName string, testErr *error) {
 	if testErr != nil && *testErr != nil {
-		s.log.Warn("test FAILED -- capturing screenshot", "test", testName)
+		s.Log.Warn("test FAILED -- capturing screenshot", "test", testName)
 		if bytes, err := s.Screenshot.CaptureAsBites(s.Browser.Page); err == nil {
 			_ = s.Reporter.AddScreenshot(bytes, fmt.Sprintf("Failure: %s", testName))
 		} else {
-			s.log.Warn("failed to capture screenshot", "err", err)
+			s.Log.Warn("failed to capture screenshot", "err", err)
 		}
 		s.Reporter.SetFailed(*testErr)
 	}
 
 	if err := s.Reporter.Finalize(); err != nil {
-		s.log.Warn("could not finalize Allure report", "err", err)
+		s.Log.Warn("could not finalize Allure report", "err", err)
 	}
 
 	s.Browser.Close()
-	s.log.Info("test teardown complete", "test", testName)
+	s.Log.Info("test teardown complete", "test", testName)
 }
 
 func (s *TestSuite) Step(name string, fn func() error) error {
