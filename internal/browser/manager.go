@@ -72,7 +72,7 @@ func (m *Manager) Launch() error {
 	return nil
 }
 
-func (m *Manager) Close() {
+func (m *Manager) Close() error {
 	if m.context != nil {
 		m.log.Debug("Closing browser context")
 	}
@@ -81,8 +81,14 @@ func (m *Manager) Close() {
 	}
 	if m.pw != nil {
 		m.log.Debug("Stopping playwright")
-		m.pw.Stop()
+		err := m.pw.Stop()
+		if err != nil {
+			m.log.Error("Failed to stop Playwright", "error", err)
+			return fmt.Errorf("failed to stop Playwright: %w", err)
+		}
 	}
+
+	return nil
 }
 
 func (m *Manager) NavigateTo(url string) error {
