@@ -30,8 +30,8 @@ func (s *Service) Capture(page playwright.Page, name string) (string, error) {
 	s.log.Info("taking screenshot", "path", fullPath)
 
 	_, err := page.Screenshot(playwright.PageScreenshotOptions{
-		Path:     playwright.String(fullPath),
-		FullPage: playwright.Bool(true),
+		Path:     new(fullPath),
+		FullPage: new(true),
 	})
 	if err != nil {
 		return "", fmt.Errorf("screenshot failed: %w", err)
@@ -47,7 +47,7 @@ func (s *Service) CaptureOnFailure(page playwright.Page, testName string) (strin
 
 func (s *Service) CaptureAsBites(page playwright.Page) ([]byte, error) {
 	bytes, err := page.Screenshot(playwright.PageScreenshotOptions{
-		FullPage: playwright.Bool(true),
+		FullPage: new(true),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("screenshot failed: %w", err)

@@ -41,7 +41,7 @@ func (p *BasePage) Navigate(path string) error {
 
 	if _, err := p.Page.Goto(url, playwright.PageGotoOptions{
 		WaitUntil: playwright.WaitUntilStateNetworkidle,
-		Timeout:   playwright.Float(float64(p.Timeout)),
+		Timeout:   new(float64(p.Timeout)),
 	}); err != nil {
 		return fmt.Errorf("[%s] navigation FAILED: %w", p.Name, err)
 	}
@@ -53,7 +53,7 @@ func (p *BasePage) WaitForURL(urlPattern string) error {
 	p.Log.Info("waiting for URL", "pattern", urlPattern)
 
 	if err := p.Page.WaitForURL(urlPattern, playwright.PageWaitForURLOptions{
-		Timeout: playwright.Float(float64(p.Timeout)),
+		Timeout: new(float64(p.Timeout)),
 	}); err != nil {
 		return fmt.Errorf("[%s] URL did not match [%s]: %w", p.Name, urlPattern, err)
 	}
@@ -87,7 +87,7 @@ func (p *BasePage) WaitForNetworkIdle() error {
 
 	if err := p.Page.WaitForLoadState(playwright.PageWaitForLoadStateOptions{
 		State:   playwright.LoadStateNetworkidle,
-		Timeout: playwright.Float(float64(p.Timeout)),
+		Timeout: new(float64(p.Timeout)),
 	}); err != nil {
 		return fmt.Errorf("[%s] network did not become idle: %w", p.Name, err)
 	}

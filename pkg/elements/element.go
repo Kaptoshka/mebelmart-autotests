@@ -67,7 +67,7 @@ func (e *Element) WaitForVisible() error {
 
 	if err := e.locator.WaitFor(playwright.LocatorWaitForOptions{
 		State:   playwright.WaitForSelectorStateVisible,
-		Timeout: playwright.Float(float64(e.timeout.Milliseconds())),
+		Timeout: new(float64(e.timeout.Milliseconds())),
 	}); err != nil {
 		return fmt.Errorf("element [%s] not visible after %v: %w", e.description, e.timeout, err)
 	}
@@ -80,7 +80,7 @@ func (e *Element) WaitForHidden() error {
 
 	if err := e.locator.WaitFor(playwright.LocatorWaitForOptions{
 		State:   playwright.WaitForSelectorStateHidden,
-		Timeout: playwright.Float(float64(e.timeout.Milliseconds())),
+		Timeout: new(float64(e.timeout.Milliseconds())),
 	}); err != nil {
 		return fmt.Errorf("element [%s] not visible after %v: %w", e.description, e.timeout, err)
 	}

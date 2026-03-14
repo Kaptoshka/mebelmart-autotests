@@ -117,25 +117,25 @@ func (m *Manager) getBrowserType() (playwright.BrowserType, error) {
 func (m *Manager) getBrowserLaunchOptions() playwright.BrowserTypeLaunchOptions {
 	slowMo := m.cfg.SlowMo.Milliseconds()
 	opts := playwright.BrowserTypeLaunchOptions{
-		Headless: playwright.Bool(m.cfg.Headless),
-		SlowMo:   playwright.Float(float64(slowMo)),
+		Headless: new(m.cfg.Headless),
+		SlowMo:   new(float64(slowMo)),
 	}
 
 	switch m.cfg.Browser {
 	case config.BrowserChromium:
 		if execPath := os.Getenv("PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"); execPath != "" {
 			m.log.Info("using custom Chromium path", "path", execPath)
-			opts.ExecutablePath = playwright.String(execPath)
+			opts.ExecutablePath = new(execPath)
 		}
 	case config.BrowserFirefox:
 		if execPath := os.Getenv("PLAYWRIGHT_FIREFOX_EXECUTABLE_PATH"); execPath != "" {
 			m.log.Info("using custom Firefox path", "path", execPath)
-			opts.ExecutablePath = playwright.String(execPath)
+			opts.ExecutablePath = new(execPath)
 		}
 	case config.BrowserWebKit:
 		if execPath := os.Getenv("PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH"); execPath != "" {
 			m.log.Info("Using custom WebKit path", "path", execPath)
-			opts.ExecutablePath = playwright.String(execPath)
+			opts.ExecutablePath = new(execPath)
 		}
 	default:
 		m.log.Warn("Unsupported browser", "browser", m.cfg.Browser)
