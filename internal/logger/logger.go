@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func init() {
+func New() *slog.Logger {
 	level := os.Getenv("LOG_LEVEL")
 
 	var lvl slog.Level
@@ -30,11 +30,11 @@ func init() {
 		output = io.MultiWriter(os.Stdout, logFile)
 	}
 
-	slog.SetDefault(slog.New(slog.NewTextHandler(output, &slog.HandlerOptions{
+	return slog.New(slog.NewTextHandler(output, &slog.HandlerOptions{
 		Level: lvl,
-	})))
+	}))
 }
 
 func ForTest(t *testing.T) *slog.Logger {
-	return slog.Default().With("test", t.Name())
+	return New().With("test", t.Name())
 }
