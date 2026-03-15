@@ -40,7 +40,7 @@ func NewXPath(
 	timeout time.Duration,
 	log *slog.Logger,
 ) *Element {
-	return newElement(page, "xpath"+xpath, description, XPath, timeout, log)
+	return newElement(page, "xpath="+xpath, description, XPath, timeout, log)
 }
 
 func newElement(
