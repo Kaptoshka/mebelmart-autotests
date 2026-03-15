@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/playwright-community/playwright-go"
@@ -56,14 +57,12 @@ func (s *Service) CaptureAsBites(page playwright.Page) ([]byte, error) {
 }
 
 func sanitizeName(name string) string {
-	result := make([]byte, len(name))
-	for i, c := range name {
-		switch c {
+	return strings.Map(func(r rune) rune {
+		switch r {
 		case '/', '\\', ':', '*', '?', '"', '<', '>', '|', ' ':
-			result[i] = '_'
+			return '_'
 		default:
-			result[i] = byte(c)
+			return r
 		}
-	}
-	return string(result)
+	}, name)
 }
