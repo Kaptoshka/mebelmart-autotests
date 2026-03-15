@@ -94,13 +94,13 @@ func getBool(key string, defaultVal bool) bool {
 func getDuration(key string, defaultMs int) time.Duration {
 	v := os.Getenv(key)
 	if v == "" {
-		return time.Duration(defaultMs) * time.Millisecond
+		return time.Duration(defaultMs)
 	}
 	ms, err := strconv.Atoi(v)
 	if err != nil {
-		return time.Duration(defaultMs) * time.Millisecond
+		return time.Duration(defaultMs)
 	}
-	return time.Duration(ms) * time.Millisecond
+	return time.Duration(ms)
 }
 
 func getInt(key string, defaultVal int) int {
