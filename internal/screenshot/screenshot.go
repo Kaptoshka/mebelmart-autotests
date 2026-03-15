@@ -16,7 +16,7 @@ type Service struct {
 }
 
 func New(outputDir string, log *slog.Logger) *Service {
-	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+	if err := os.MkdirAll(outputDir, 0o700); err != nil {
 		log.Warn("could not create screenshot dir", "err", err)
 	}
 	return &Service{outputDir: outputDir, log: log}

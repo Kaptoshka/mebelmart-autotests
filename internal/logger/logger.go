@@ -16,11 +16,11 @@ func init() {
 		lvl = slog.LevelInfo
 	}
 
-	_ = os.MkdirAll("logs", os.ModePerm)
+	_ = os.MkdirAll("logs", 0o750)
 
 	logFile, err := os.OpenFile(
 		"logs/session_"+time.Now().Format("2006-01-02_15-04-05")+".log",
-		os.O_CREATE|os.O_WRONLY, 0o666,
+		os.O_CREATE|os.O_WRONLY, 0o600,
 	)
 
 	var output io.Writer

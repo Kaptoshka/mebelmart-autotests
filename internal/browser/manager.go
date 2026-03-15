@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"os"
 
-	"autotests/internal/config"
-
 	"github.com/playwright-community/playwright-go"
+
+	"autotests/internal/config"
 )
 
 type Manager struct {

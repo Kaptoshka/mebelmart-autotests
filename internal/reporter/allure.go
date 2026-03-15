@@ -69,7 +69,7 @@ type AllureReporter struct {
 }
 
 func New(outputDir, testName, suiteName string, log *slog.Logger) *AllureReporter {
-	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+	if err := os.MkdirAll(outputDir, 0o700); err != nil {
 		log.Warn("could not create allure results dir", "err", err)
 	}
 
@@ -137,7 +137,7 @@ func (r *AllureReporter) AddScreenshot(screenshotBytes []byte, name string) erro
 	filename := fmt.Sprintf("%s-%d", uuid.String(), time.Now().UnixMilli())
 	destPath := filepath.Join(r.outputDir, filename)
 
-	if err := os.WriteFile(destPath, screenshotBytes, 0o644); err != nil {
+	if err := os.WriteFile(destPath, screenshotBytes, 0o600); err != nil {
 		return fmt.Errorf("failed to save screenshot attachment: %w", err)
 	}
 
@@ -199,7 +199,7 @@ func (r *AllureReporter) Finalize() error {
 		return fmt.Errorf("failed to marshal allure report: %w", err)
 	}
 
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := os.WriteFile(path, data, 0o600); err != nil {
 		return fmt.Errorf("failed to write allure result: %w", err)
 	}
 
