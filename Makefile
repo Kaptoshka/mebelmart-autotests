@@ -1,4 +1,4 @@
-lint: lint-go lint-yanl lint-nix
+lint: lint-go lint-yaml lint-nix
 
 lint-go:
 	golangci-lint run --config .golangci.yml
