@@ -60,8 +60,8 @@ allure-generate: ## Generate Allure report
 
 .PHONY: clean
 clean: ## Remove generated artifacts
-	rm -rf ./allure-results ./allure-report ./screenshots
-	mkdir -p ./allure-results ./screenshots
+	rm -rf ./tests/allure-results ./tests/allure-report ./tests/screenshots ./tests/logs
+	mkdir -p ./tests/allure-results ./tests/screenshots
 
 # ─── Format ──────────────────────────────────────────────────────────────────
 
