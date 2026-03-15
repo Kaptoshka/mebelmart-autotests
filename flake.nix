@@ -6,13 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        browsers = (builtins.fromJSON
-          (builtins.readFile "${pkgs.playwright-driver}/browsers.json")).browsers;
+        browsersJson = builtins.readFile "${pkgs.playwright-driver}/browsers.json";
+        browsersData = builtins.fromJSON browsersJson;
+        inherit (browsersData) browsers;
 
         chromium-rev = (builtins.head
           (builtins.filter (x: x.name == "chromium") browsers)).revision;
