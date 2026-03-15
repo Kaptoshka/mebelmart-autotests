@@ -35,7 +35,8 @@
             deadnix
             nixpkgs-fmt
             gotools
-
+            yamllint
+            yamlfmt
             nodejs
             playwright-driver.browsers
           ];
