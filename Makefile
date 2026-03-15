@@ -16,45 +16,54 @@ deps:
 
 # ─── Test ────────────────────────────────────────────────────────────────────
 
+ENV_FILE ?= $(CURDIR)/.env
 HEADLESS ?= true
-BROWSER  ?= chrome
+TRACE    ?= true
+BROWSER  ?= chromium
 TEST_DIR  = ./tests/...
 GO_TEST   = go test $(TEST_DIR) -v -count=1
 
 .PHONY: test
-test: ## Run all tests (Chrome, headless)
-	BROWSER=$(BROWSER) HEADLESS=$(HEADLESS) $(GO_TEST)
+test: ## Run all tests
+	ENV_FILE=$(ENV_FILE) $(GO_TEST)
 
 .PHONY: test-chrome
 test-chrome: ## Run tests on Chrome
-	BROWSER=chrome HEADLESS=true $(GO_TEST)
+	ENV_FILE=$(ENV_FILE) BROWSER=chrome HEADLESS=true $(GO_TEST)
 
 .PHONY: test-firefox
 test-firefox: ## Run tests on Firefox
-	BROWSER=firefox HEADLESS=true $(GO_TEST)
+	ENV_FILE=$(ENV_FILE) BROWSER=firefox HEADLESS=true $(GO_TEST)
 
 .PHONY: test-webkit
 test-webkit: ## Run tests on WebKit
-	BROWSER=webkit HEADLESS=true $(GO_TEST)
+	ENV_FILE=$(ENV_FILE) BROWSER=webkit HEADLESS=true $(GO_TEST)
 
 .PHONY: test-headed
 test-headed: ## Run tests with browser visible
-	BROWSER=chrome HEADLESS=false $(GO_TEST)
+	ENV_FILE=$(ENV_FILE) BROWSER=chrome HEADLESS=false $(GO_TEST)
 
 .PHONY: test-one
 test-one: ## Run a specific test: make test-one TEST=TestName
 	@test -n "$(TEST)" || (echo "Usage: make test-one TEST=TestName" && exit 1)
-	BROWSER=chrome HEADLESS=true $(GO_TEST) -run $(TEST)# Generate and open Allure report
+	ENV_FILE=$(ENV_FILE) BROWSER=chrome HEADLESS=true $(GO_TEST) -run $(TEST)# Generate and open Allure report
 
 # ─── Allure ──────────────────────────────────────────────────────────────────
 
+ALLURE_RESULTS_DIR=./tests/allure-results
+ALLURE_REPORT_DIR=./tests/allure-report
+
 .PHONY: allure-serve
 allure-serve: ## Serve Allure report
-	allure serve ./allure-results
+	allure serve $(ALLURE_RESULTS_DIR)
+
+.PHONY: allure-serve-wsl
+allure-serve-wsl: ## Serve Allure report on WSL
+	allure serve $(ALLURE_RESULTS_DIR) --host 0.0.0.0 --port 5050
 
 .PHONY: allure-generate
 allure-generate: ## Generate Allure report
-	allure generate ./allure-results -o ./allure-report --clean
+	allure generate $(ALLURE_RESULTS_DIR) -o $(ALLURE_REPORT_DIR) --clean
 
 # ─── Clean ───────────────────────────────────────────────────────────────────
 

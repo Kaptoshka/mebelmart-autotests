@@ -4,6 +4,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type BrowserType string
@@ -24,6 +26,7 @@ const (
 type Config struct {
 	Browser         BrowserType
 	Headless        bool
+	Trace           bool
 	BaseURL         string
 	Timeout         time.Duration
 	SlowMo          time.Duration
@@ -35,9 +38,12 @@ type Config struct {
 }
 
 func Load() *Config {
+	_ = godotenv.Load(os.Getenv("ENV_FILE"))
+
 	return &Config{
 		Browser:         getBrowserType(),
 		Headless:        getBool("HEADLESS", true),
+		Trace:           getBool("TRACE", false),
 		BaseURL:         getEnv("BASE_URL", "https://example.com"),
 		Timeout:         getDuration("TIMEOUT_MS", defaultTimeoutMS),
 		SlowMo:          getDuration("SLOW_MO_MS", defaultSlowMoMS),

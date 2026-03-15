@@ -27,17 +27,21 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            allure
+
             go_1_26
             gopls
             delve
-
             golangci-lint
+            gotools
+
             statix
             deadnix
             nixpkgs-fmt
-            gotools
+
             yamllint
             yamlfmt
+
             nodejs
             playwright-driver.browsers
           ];
@@ -49,6 +53,8 @@
             echo "  Chromium rev: ${chromium-rev}"
             echo "  Firefox rev: ${firefox-rev}"
             echo "  WebKit rev: ${webkit-rev}"
+
+            export ENV_FILE="$PWD/.env"
 
             export PLAYWRIGHT_BROWSER_PATH=${pkgs.playwright-driver.browsers}
             export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
