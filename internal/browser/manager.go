@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/playwright-community/playwright-go"
-
 	"autotests/internal/config"
+
+	"github.com/playwright-community/playwright-go"
 )
 
 type Manager struct {
@@ -115,27 +115,29 @@ func (m *Manager) getBrowserType() (playwright.BrowserType, error) {
 }
 
 func (m *Manager) getBrowserLaunchOptions() playwright.BrowserTypeLaunchOptions {
-	slowMo := m.cfg.SlowMo.Milliseconds()
+	headless := m.cfg.Headless
+	slowMo := float64(m.cfg.SlowMo.Milliseconds())
+
 	opts := playwright.BrowserTypeLaunchOptions{
-		Headless: new(m.cfg.Headless),
-		SlowMo:   new(float64(slowMo)),
+		Headless: &headless,
+		SlowMo:   &slowMo,
 	}
 
 	switch m.cfg.Browser {
 	case config.BrowserChromium:
 		if execPath := os.Getenv("PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH"); execPath != "" {
 			m.log.Info("using custom Chromium path", "path", execPath)
-			opts.ExecutablePath = new(execPath)
+			opts.ExecutablePath = &execPath
 		}
 	case config.BrowserFirefox:
 		if execPath := os.Getenv("PLAYWRIGHT_FIREFOX_EXECUTABLE_PATH"); execPath != "" {
 			m.log.Info("using custom Firefox path", "path", execPath)
-			opts.ExecutablePath = new(execPath)
+			opts.ExecutablePath = &execPath
 		}
 	case config.BrowserWebKit:
 		if execPath := os.Getenv("PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH"); execPath != "" {
 			m.log.Info("Using custom WebKit path", "path", execPath)
-			opts.ExecutablePath = new(execPath)
+			opts.ExecutablePath = &execPath
 		}
 	default:
 		m.log.Warn("Unsupported browser", "browser", m.cfg.Browser)
