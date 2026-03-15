@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"autotests/internal/config"
 
@@ -69,16 +70,47 @@ func (m *Manager) Launch() error {
 	page.SetDefaultTimeout(float64(m.cfg.Timeout.Milliseconds()))
 
 	m.log.Info("Browser launched successfully")
+
+	if os.Getenv("TRACE") == "true" {
+		if err = m.context.Tracing().Start(playwright.TracingStartOptions{
+			Screenshots: new(true),
+			Snapshots:   new(true),
+			Sources:     new(true),
+		}); err != nil {
+			m.log.Warn("Failed to start tracing", "error", err)
+		}
+	}
+
 	return nil
 }
 
 func (m *Manager) Close() error {
+	if os.Getenv("TRACE") == "true" {
+		tracePath := fmt.Sprintf("traces/trace-%d.zip", time.Now().UnixMilli())
+		_ = os.Mkdir("traces", 0o700)
+		if err := m.context.Tracing().Stop(tracePath); err != nil {
+			m.log.Warn("Failed to save trace", "error", err)
+		} else {
+			m.log.Info("Trace saved", "path", tracePath)
+		}
+	}
+
 	if m.context != nil {
 		m.log.Debug("Closing browser context")
+		err := m.context.Close()
+		if err != nil {
+			m.log.Error("Failed to close browser context", "error", err)
+		}
 	}
+
 	if m.browser != nil {
 		m.log.Debug("Closing browser")
+		err := m.browser.Close()
+		if err != nil {
+			m.log.Error("Failed to close browser", "error", err)
+		}
 	}
+
 	if m.pw != nil {
 		m.log.Debug("Stopping playwright")
 		err := m.pw.Stop()
