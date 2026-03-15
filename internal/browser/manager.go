@@ -86,8 +86,9 @@ func (m *Manager) Launch() error {
 
 func (m *Manager) Close() error {
 	if os.Getenv("TRACE") == "true" {
-		tracePath := fmt.Sprintf("traces/trace-%d.zip", time.Now().UnixMilli())
-		_ = os.Mkdir("traces", 0o700)
+		traceDir := config.DefaultTracesDir
+		tracePath := fmt.Sprintf("%s/trace-%d.zip", traceDir, time.Now().UnixMilli())
+		_ = os.Mkdir(traceDir, 0o750)
 		if err := m.context.Tracing().Stop(tracePath); err != nil {
 			m.log.Warn("Failed to save trace", "error", err)
 		} else {

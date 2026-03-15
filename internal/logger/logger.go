@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"autotests/internal/config"
 )
 
 func New() *slog.Logger {
@@ -16,10 +18,11 @@ func New() *slog.Logger {
 		lvl = slog.LevelInfo
 	}
 
-	_ = os.MkdirAll("logs", 0o750)
+	logDir := config.DefaultLogDir
+	_ = os.MkdirAll(logDir, 0o750)
 
 	logFile, err := os.OpenFile(
-		"logs/session_"+time.Now().Format("2006-01-02_15-04-05")+".log",
+		logDir+"/session_"+time.Now().Format("2006-01-02_15-04-05")+".log",
 		os.O_CREATE|os.O_WRONLY, 0o600,
 	)
 

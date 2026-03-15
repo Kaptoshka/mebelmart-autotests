@@ -21,6 +21,9 @@ const (
 	defaultSlowMoMS       = 0
 	defaultViewportWidth  = 1920
 	defaultViewportHeight = 1080
+
+	DefaultLogDir    = "./artifacts/logs"
+	DefaultTracesDir = "./artifacts/traces"
 )
 
 type Config struct {
