@@ -63,7 +63,11 @@ func (s *TestSuite) Teardown(testName string, testErr *error) {
 		s.Log.Warn("could not finalize Allure report", "err", err)
 	}
 
-	s.Browser.Close()
+	err := s.Browser.Close()
+	if err != nil {
+		s.Log.Warn("could not close browser", "err", err)
+	}
+
 	s.Log.Info("test teardown complete", "test", testName)
 }
 
