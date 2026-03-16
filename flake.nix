@@ -1,5 +1,5 @@
 {
-  description = "GUI Autotest Framework";
+  description = "E2E Autotest Framework";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -47,7 +47,7 @@
           ];
 
           shellHook = ''
-            echo "Go GUI Autotest Framework"
+            echo "Go E2E Autotest Framework"
             echo "  Go version: $(go version)"
             echo "  Node version: $(node --version)"
             echo "  Chromium rev: ${chromium-rev}"
