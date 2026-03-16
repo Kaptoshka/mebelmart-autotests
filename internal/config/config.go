@@ -33,7 +33,6 @@ type Config struct {
 	BaseURL         string
 	Timeout         time.Duration
 	SlowMo          time.Duration
-	ScreenshotsDir  string
 	AllureReportDir string
 	LogLevel        string
 	ViewportWidth   int
@@ -50,7 +49,6 @@ func Load() *Config {
 		BaseURL:         getEnv("BASE_URL", "https://example.com"),
 		Timeout:         getDuration("TIMEOUT_MS", defaultTimeoutMS),
 		SlowMo:          getDuration("SLOW_MO_MS", defaultSlowMoMS),
-		ScreenshotsDir:  getEnv("SCREENSHOTS_DIR", "./screenshots"),
 		AllureReportDir: getEnv("ALLURE_RESULTS_DIR", "./allure-results"),
 		LogLevel:        getEnv("LOG_LEVEL", "info"),
 		ViewportWidth:   getInt("VIEWPORT_WIDTH", defaultViewportWidth),

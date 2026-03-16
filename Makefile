@@ -50,18 +50,17 @@ test-one: ## Run a specific test: make test-one TEST=TestName
 
 # ─── Allure ──────────────────────────────────────────────────────────────────
 
-ALLURE_RESULTS_DIR=./artifacts/allure-results
-ALLURE_REPORTS_DIR=./artifacts/allure-reports
-SCREENSHOTS_DIR=./artifacts/screenshots
-LOGS_DIR=./artifacts/logs
-TRACES_DIR=./artifacts/traces
+ALLURE_RESULTS_DIR=./tests/artifacts/allure-results
+ALLURE_REPORTS_DIR=./tests/artifacts/allure-reports
+LOGS_DIR=./tests/artifacts/logs
+TRACES_DIR=./tests/artifacts/traces
 
 .PHONY: allure-serve
 allure-serve: ## Serve Allure report
 	allure serve $(ALLURE_RESULTS_DIR)
 
 .PHONY: allure-serve-wsl
-allure-serve-wsl: ## Serve Allure report on WSL
+allure-serve-wsl: ## Serve Allure report on WSL, use localhost:5050
 	allure serve $(ALLURE_RESULTS_DIR) --host 0.0.0.0 --port 5050
 
 .PHONY: allure-generate
@@ -72,8 +71,8 @@ allure-generate: ## Generate Allure report
 
 .PHONY: clean
 clean: ## Remove generated artifacts
-	rm -rf $(ALLURE_RESULTS_DIR) $(ALLURE_REPORTS_DIR) $(SCREENSHOTS_DIR) $(LOGS_DIR) $(TRACES_DIR)
-	mkdir -p $(ALLURE_RESULTS_DIR) $(SCREENSHOTS_DIR)
+	rm -rf $(ALLURE_RESULTS_DIR) $(ALLURE_REPORTS_DIR) $(LOGS_DIR) $(TRACES_DIR)
+	mkdir -p $(ALLURE_RESULTS_DIR)
 
 # ─── Format ──────────────────────────────────────────────────────────────────
 

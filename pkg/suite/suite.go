@@ -34,7 +34,7 @@ func New(t *testing.T, suiteName string) *TestSuite {
 
 func (s *TestSuite) Setup(testName string) error {
 	s.Log = logger.ForTest(s.T)
-	s.Screenshot = screenshot.New(s.Config.ScreenshotsDir, s.Log)
+	s.Screenshot = screenshot.New(s.Log)
 	s.Reporter = reporter.New(s.Config.AllureReportDir, testName, s.SuiteName, s.Log)
 
 	s.Browser = browser.New(s.Config, s.Log)
