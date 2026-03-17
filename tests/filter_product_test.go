@@ -6,18 +6,10 @@ import (
 	"testing"
 
 	"autotests/pkg/suite"
+	testdata "autotests/tests"
 	testpages "autotests/tests/pages"
 
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	catalogURL  = "/myagkaya_mebel_v_saratove/divanyi_v_saratove"
-	filterName  = "Цена"
-	productName = "Диван Чебурашка"
-
-	minBorder = 9315
-	maxBorder = 10815
 )
 
 func TestFilterProductAndCheckIsAvailable(t *testing.T) {
@@ -38,7 +30,7 @@ func TestFilterProductAndCheckIsAvailable(t *testing.T) {
 	catalog := testpages.NewCatalogPage(s.Browser.Page, s.Config.BaseURL, s.Config.Timeout, s.Log)
 
 	testErr = s.Step("Navigate to couches page", func() error {
-		return catalog.Navigate(catalogURL)
+		return catalog.Navigate(testdata.CatalogURL)
 	})
 	require.NoError(t, testErr)
 
@@ -48,12 +40,12 @@ func TestFilterProductAndCheckIsAvailable(t *testing.T) {
 	require.NoError(t, testErr)
 
 	testErr = s.Step("Click filter container for price", func() error {
-		return catalog.ClickFilterContainer(filterName)
+		return catalog.ClickFilterContainer(testdata.FilterName)
 	})
 	require.NoError(t, testErr)
 
-	testErr = s.Step(fmt.Sprintf("Set range %d - %d", minBorder, maxBorder), func() error {
-		return catalog.SetRangeSliderByDrag(filterName, minBorder, maxBorder)
+	testErr = s.Step(fmt.Sprintf("Set range %d - %d", testdata.MinBorder, testdata.MaxBorder), func() error {
+		return catalog.SetRangeSliderByDrag(testdata.FilterName, testdata.MinBorder, testdata.MaxBorder)
 	})
 	require.NoError(t, testErr)
 
@@ -82,7 +74,7 @@ func TestFilterProductAndCheckIsAvailable(t *testing.T) {
 	testErr = s.Step(
 		"Find couch with price in range",
 		func() error {
-			return catalog.FindProduct(productName)
+			return catalog.FindProduct(testdata.ProductName)
 		},
 	)
 	require.NoError(t, testErr)
