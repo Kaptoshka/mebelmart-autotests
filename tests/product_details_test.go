@@ -2,7 +2,6 @@ package cases_test
 
 import (
 	"fmt"
-	// "strings"
 	"testing"
 
 	"autotests/pkg/suite"
