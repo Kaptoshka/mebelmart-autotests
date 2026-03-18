@@ -22,6 +22,12 @@ type TestSuite struct {
 	Log        *slog.Logger
 }
 
+type TestMeta struct {
+	Description string
+	Severity    string
+	Feature     string
+}
+
 func New(t *testing.T, suiteName string) *TestSuite {
 	cfg := config.Load()
 
@@ -85,4 +91,26 @@ func (s *TestSuite) Step(name string, fn func() error) error {
 
 func (s *TestSuite) NavigateTo(url string) error {
 	return s.Browser.NavigateTo(url)
+}
+
+type label struct {
+	key   string
+	value string
+}
+
+func (s *TestSuite) SetMeta(meta TestMeta) {
+	if meta.Description != "" {
+		s.Reporter.SetDescription(meta.Description)
+	}
+
+	labels := []label{
+		{"severity", meta.Severity},
+		{"feature", meta.Feature},
+	}
+
+	for _, l := range labels {
+		if l.value != "" {
+			s.Reporter.AddLabel(l.key, l.value)
+		}
+	}
 }
