@@ -3,14 +3,20 @@ package testpages
 import (
 	"fmt"
 	"log/slog"
-	"regexp"
-	"strconv"
+	"strings"
 	"time"
 
 	"autotests/pkg/pages"
 
 	"github.com/playwright-community/playwright-go"
 )
+
+type ProductCard struct {
+	Name  string
+	Width int
+	Depth int
+	URL   string
+}
 
 type CatalogPage struct {
 	*pages.BasePage
@@ -51,7 +57,12 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 	from int,
 	to int,
 ) error {
-	p.Log.Debug("Setting range filter", "filter", filterName, "from", from, "to", to)
+	p.Log.Debug(
+		"Setting range filter",
+		"filter", filterName,
+		"from", from,
+		"to", to,
+	)
 
 	filterContainer := p.Page.Locator(".filter__item").Filter(
 		playwright.LocatorFilterOptions{
@@ -63,25 +74,30 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 		},
 	)
 
-	minHandle := filterContainer.Locator(".slider-handle.min-slider-handle")
-	maxHandle := filterContainer.Locator(".slider-handle.max-slider-handle")
+	minHandle := filterContainer.Locator(
+		".slider-handle.min-slider-handle",
+	)
+	maxHandle := filterContainer.Locator(
+		".slider-handle.max-slider-handle",
+	)
 	track := filterContainer.Locator(".slider-track")
 
 	absMinStr, err := minHandle.GetAttribute("aria-valuemin")
 	if err != nil {
 		return fmt.Errorf("cannot read aria-valuemin: %w", err)
 	}
+
 	absMaxStr, err := maxHandle.GetAttribute("aria-valuemax")
 	if err != nil {
 		return fmt.Errorf("cannot read aria-valuemax: %w", err)
 	}
 
-	absMin, err := p.parseInt(absMinStr)
+	absMin, err := p.ParseInt(absMinStr)
 	if err != nil {
 		return fmt.Errorf("cannot parse aria-valuemin: %w", err)
 	}
 
-	absMax, err := p.parseInt(absMaxStr)
+	absMax, err := p.ParseInt(absMaxStr)
 	if err != nil {
 		return fmt.Errorf("cannot parse aria-valuemax: %w", err)
 	}
@@ -165,10 +181,6 @@ func (p *CatalogPage) ClickApplyButton() error {
 func (p *CatalogPage) WaitForResults() error {
 	p.Log.Debug("Waiting for results to update")
 
-	if err := p.WaitForNetworkIdle(); err != nil {
-		return fmt.Errorf("network did not become idle after filter: %w", err)
-	}
-
 	if err := p.productCards.First().WaitFor(
 		playwright.LocatorWaitForOptions{
 			State:   playwright.WaitForSelectorStateVisible,
@@ -189,7 +201,10 @@ func (p *CatalogPage) GetResultsCount() (int, error) {
 func (p *CatalogPage) ClickSortButton(sortName string) error {
 	p.Log.Debug("Clicking sort button", "SortName", sortName)
 	return p.CSS(
-		fmt.Sprintf(".sorting-bar .sorting-bar__text b:has-text('%s')", sortName),
+		fmt.Sprintf(
+			".sorting-bar .sorting-bar__text b:has-text('%s')",
+			sortName,
+		),
 		"Sort button",
 	).Click()
 }
@@ -199,9 +214,11 @@ func (p *CatalogPage) FindProduct(
 ) error {
 	p.Log.Debug("Checking product visibility", "name", name)
 
-	product := p.productCards.Filter(playwright.LocatorFilterOptions{
-		HasText: name,
-	})
+	product := p.productCards.Filter(
+		playwright.LocatorFilterOptions{
+			HasText: name,
+		},
+	)
 
 	count, err := product.Count()
 	if err != nil || count == 0 {
@@ -212,11 +229,51 @@ func (p *CatalogPage) FindProduct(
 	return nil
 }
 
-func (p *CatalogPage) parseInt(s string) (int, error) {
-	re := regexp.MustCompile(`[^0-9]`)
-	cleanStr := re.ReplaceAllString(s, "")
-	if cleanStr == "" {
-		return 0, fmt.Errorf("string '%s' contains no digits", s)
+func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
+	p.Log.Debug("Getting product card", "name", name)
+
+	card := p.productCards.Filter(
+		playwright.LocatorFilterOptions{
+			HasText: name,
+		},
+	).First()
+
+	cardName, err := card.Locator(".product-card__name").First().TextContent()
+	if err != nil {
+		return nil, fmt.Errorf("cannot get card name: %w", err)
 	}
-	return strconv.Atoi(cleanStr)
+
+	cardName = strings.TrimSpace(cardName)
+
+	cardWidthStr, err := card.Locator(".text-center small:has-text('Ширина')").First().TextContent()
+	if err != nil {
+		return nil, fmt.Errorf("cannot get card width: %w", err)
+	}
+
+	width, err := p.ParseInt(cardWidthStr)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse card width to int: %w", err)
+	}
+
+	cardDepthStr, err := card.Locator(".text-center small:has-text('Глубина')").First().TextContent()
+	if err != nil {
+		return nil, fmt.Errorf("cannot get card depth: %w", err)
+	}
+
+	depth, err := p.ParseInt(cardDepthStr)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse card depth to int: %w", err)
+	}
+
+	url, err := card.Locator(".product-card__name a").First().GetAttribute("href")
+	if err != nil {
+		return nil, fmt.Errorf("cannot get card URL: %w", err)
+	}
+
+	return &ProductCard{
+		Name:  cardName,
+		Width: width,
+		Depth: depth,
+		URL:   url,
+	}, nil
 }
