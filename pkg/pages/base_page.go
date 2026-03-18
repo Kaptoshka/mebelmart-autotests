@@ -3,6 +3,8 @@ package pages
 import (
 	"fmt"
 	"log/slog"
+	"regexp"
+	"strconv"
 	"time"
 
 	"autotests/pkg/elements"
@@ -102,4 +104,13 @@ func (p *BasePage) ExecuteScript(script string, args ...any) (any, error) {
 	}
 
 	return result, nil
+}
+
+func (p *BasePage) ParseInt(s string) (int, error) {
+	re := regexp.MustCompile(`[^0-9]`)
+	cleanStr := re.ReplaceAllString(s, "")
+	if cleanStr == "" {
+		return 0, fmt.Errorf("string '%s' contains no digits", s)
+	}
+	return strconv.Atoi(cleanStr)
 }
