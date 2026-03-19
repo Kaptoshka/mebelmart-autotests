@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"autotests/pkg/elements"
 	"autotests/pkg/pages"
 
 	"github.com/playwright-community/playwright-go"
@@ -21,7 +22,7 @@ type ProductCard struct {
 type CatalogPage struct {
 	*pages.BasePage
 
-	productCards playwright.Locator
+	productCards *elements.Element
 }
 
 func NewCatalogPage(
@@ -36,10 +37,14 @@ func NewCatalogPage(
 			baseURL,
 			timeout,
 			"CatalogPage",
-			testLog.With("page", "CatalogPage"),
+			testLog,
 		),
-		productCards: page.Locator(
+		productCards: elements.NewCSS(
+			page,
 			".content .container .product-card:not(.owl-carousel .product-card)",
+			"Product Cards List",
+			timeout,
+			testLog,
 		),
 	}
 }
@@ -181,12 +186,7 @@ func (p *CatalogPage) ClickApplyButton() error {
 func (p *CatalogPage) WaitForResults() error {
 	p.Log.Debug("Waiting for results to update")
 
-	if err := p.productCards.First().WaitFor(
-		playwright.LocatorWaitForOptions{
-			State:   playwright.WaitForSelectorStateVisible,
-			Timeout: new(float64(p.Timeout)),
-		},
-	); err != nil {
+	if err := p.productCards.First("First product card").WaitForVisible(); err != nil {
 		return fmt.Errorf("no product cards appeared after filter: %w", err)
 	}
 
@@ -214,11 +214,7 @@ func (p *CatalogPage) FindProduct(
 ) error {
 	p.Log.Debug("Checking product visibility", "name", name)
 
-	product := p.productCards.Filter(
-		playwright.LocatorFilterOptions{
-			HasText: name,
-		},
-	)
+	product := p.productCards.FilterByText(name, "Card for "+name)
 
 	count, err := product.Count()
 	if err != nil || count == 0 {
@@ -232,20 +228,25 @@ func (p *CatalogPage) FindProduct(
 func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 	p.Log.Debug("Getting product card", "name", name)
 
-	card := p.productCards.Filter(
-		playwright.LocatorFilterOptions{
-			HasText: name,
-		},
-	).First()
+	card := p.productCards.FilterByText(name, "Card for "+name).First(
+		"First product card",
+	)
 
-	cardName, err := card.Locator(".product-card__name").First().TextContent()
+	cardName, err := card.FindCSS(
+		".product-card__name",
+		"Product card name",
+	).Text()
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card name: %w", err)
 	}
 
 	cardName = strings.TrimSpace(cardName)
+	paramSelector := ".text-center small:has-text('%s')"
 
-	cardWidthStr, err := card.Locator(".text-center small:has-text('Ширина')").First().TextContent()
+	cardWidthStr, err := p.GetParamCSS(
+		*card,
+		fmt.Sprintf(paramSelector, "Ширина"),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card width: %w", err)
 	}
@@ -255,7 +256,10 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 		return nil, fmt.Errorf("cannot parse card width to int: %w", err)
 	}
 
-	cardDepthStr, err := card.Locator(".text-center small:has-text('Глубина')").First().TextContent()
+	cardDepthStr, err := p.GetParamCSS(
+		*card,
+		fmt.Sprintf(paramSelector, "Глубина"),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card depth: %w", err)
 	}
@@ -265,7 +269,7 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 		return nil, fmt.Errorf("cannot parse card depth to int: %w", err)
 	}
 
-	url, err := card.Locator(".product-card__name a").First().GetAttribute("href")
+	url, err := p.GetURL(card, ".product-card__name a")
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card URL: %w", err)
 	}
@@ -276,4 +280,78 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 		Depth: depth,
 		URL:   url,
 	}, nil
+}
+
+func (p *CatalogPage) GetParamCSS(
+	elem elements.Element,
+	selector string,
+) (string, error) {
+	return elem.FindCSS(selector, "Parameter value retrieving").Text()
+}
+
+func (p *CatalogPage) GetURL(
+	elem *elements.Element,
+	selector string,
+) (string, error) {
+	return elem.FindCSS(
+		selector,
+		"Product card URL retrieving",
+	).GetAttribute("href")
+}
+
+func (p *CatalogPage) GetProductCardURL(name string) (string, error) {
+	return p.GetURL(
+		p.productCards.FilterByText(
+			name,
+			"Product card with name "+name,
+		).First("Product card URL"),
+		".product-card__name a",
+	)
+}
+
+func (p *CatalogPage) AddToWishlist(name string) error {
+	p.Log.Debug("Click button that adds product to wishlist", "name", name)
+	return p.productCards.FilterByText(
+		name,
+		"Product card with name "+name,
+	).First(
+		"First product card",
+	).FindCSS(
+		".product-card__favorites .favorite-icon",
+		"Favorite icon",
+	).Click()
+}
+
+func (p *CatalogPage) OpenWishlist() error {
+	p.Log.Debug("Click button that opens wishlist")
+
+	return p.CSS(
+		"header .container .favorite-informer:visible",
+		"Wishlist link",
+	).Click()
+}
+
+func (p *CatalogPage) IsActiveIcon(name string) error {
+	p.Log.Debug(
+		"Checking if favorite icon for product [%s] is active",
+		"product",
+		name,
+	)
+
+	productCard := p.productCards.FilterByText(
+		name,
+		"Card for "+name,
+	)
+
+	activeIcon := productCard.FindCSS(
+		".product-card__favorites .favorite-icon.active",
+		"Active favorite icon",
+	)
+
+	err := activeIcon.WaitForVisible()
+	if err != nil {
+		return fmt.Errorf("favorite icon for product [%s] is not active: %w", name, err)
+	}
+
+	return nil
 }

@@ -22,9 +22,13 @@ func TestFilterProductAndCheckIsAvailable(t *testing.T) {
 	}
 
 	s.SetMeta(suite.TestMeta{
-		Description: "Filter product by price range and check that product is available",
-		Severity:    "normal",
-		Feature:     "filters",
+		Description: fmt.Sprintf(
+			"Filter product by price range (%d - %d) and check that product is available",
+			testdata.MinBorder,
+			testdata.MaxBorder,
+		),
+		Severity: "normal",
+		Feature:  "filters",
 	})
 
 	var testErr error
@@ -34,7 +38,7 @@ func TestFilterProductAndCheckIsAvailable(t *testing.T) {
 		s.Browser.Page,
 		s.Config.BaseURL,
 		s.Config.Timeout,
-		s.Log,
+		s.Log.With("page", "CatalogPage"),
 	)
 
 	testErr = s.Step(
