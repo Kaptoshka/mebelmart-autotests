@@ -3,7 +3,6 @@ package elements
 import (
 	"fmt"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/playwright-community/playwright-go"
@@ -302,13 +301,26 @@ func (e *Element) Count() (int, error) {
 	return count, nil
 }
 
-func (e *Element) Text() (string, error) {
-	e.log.Debug("Getting text from element", "element", e.description)
+func (e *Element) Blur() error {
+	e.log.Debug("Removing focus from element", "element", e.description)
 
-	text, err := e.locator.TextContent()
-	if err != nil {
-		return "", fmt.Errorf("failed to get text from [%s]: %w", e.description, err)
+	if err := e.locator.Blur(); err != nil {
+		return fmt.Errorf("failed to blur element [%s]: %w", e.description, err)
 	}
 
-	return strings.TrimSpace(text), nil
+	return nil
+}
+
+func (e *Element) Press(key string) error {
+	e.log.Debug(
+		"Pressing key on element",
+		"element", e.description,
+		"key", key,
+	)
+
+	if err := e.locator.Press(key); err != nil {
+		return fmt.Errorf("failed to press key [%s] on [%s]: %w", key, e.description, err)
+	}
+
+	return nil
 }
