@@ -3,6 +3,7 @@ package elements
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/playwright-community/playwright-go"
@@ -230,4 +231,84 @@ func (e *Element) ScrollIntoView() error {
 	}
 
 	return nil
+}
+
+func (e *Element) FilterByText(text string, description string) *Element {
+	e.log.Debug("Filtering element by text", "element", e.description, "text", text)
+
+	return &Element{
+		page: e.page,
+		locator: e.locator.Filter(playwright.LocatorFilterOptions{
+			HasText: text,
+		}),
+		description: fmt.Sprintf("%s [Text: %s]", e.description, text),
+		timeout:     e.timeout,
+		log:         e.log,
+	}
+}
+
+func (e *Element) FindCSS(subSelector string, description string) *Element {
+	e.log.Debug("Finding sub-element by CSS", "parent", e.description, "child", description)
+
+	return &Element{
+		page:        e.page,
+		locator:     e.locator.Locator(subSelector),
+		description: fmt.Sprintf("%s -> %s", e.description, description),
+		timeout:     e.timeout,
+		log:         e.log,
+	}
+}
+
+func (e *Element) FindXPath(xpath string, description string) *Element {
+	e.log.Debug("Finding sub-element by XPath", "parent", e.description, "child", description)
+
+	return &Element{
+		page:        e.page,
+		locator:     e.locator.Locator("xpath=" + xpath),
+		description: fmt.Sprintf("%s -> %s", e.description, description),
+		timeout:     e.timeout,
+		log:         e.log,
+	}
+}
+
+func (e *Element) First(description string) *Element {
+	return &Element{
+		page:        e.page,
+		locator:     e.locator.First(),
+		description: fmt.Sprintf("%s [First]", e.description),
+		timeout:     e.timeout,
+		log:         e.log,
+	}
+}
+
+func (e *Element) Nth(index int, description string) *Element {
+	return &Element{
+		page:        e.page,
+		locator:     e.locator.Nth(index),
+		description: fmt.Sprintf("%s[Index: %d]", e.description, index),
+		timeout:     e.timeout,
+		log:         e.log,
+	}
+}
+
+func (e *Element) Count() (int, error) {
+	e.log.Debug("Counting element", "element", e.description)
+
+	count, err := e.locator.Count()
+	if err != nil {
+		return 0, fmt.Errorf("failed to count elements [%s]: %w", e.description, err)
+	}
+
+	return count, nil
+}
+
+func (e *Element) Text() (string, error) {
+	e.log.Debug("Getting text from element", "element", e.description)
+
+	text, err := e.locator.TextContent()
+	if err != nil {
+		return "", fmt.Errorf("failed to get text from [%s]: %w", e.description, err)
+	}
+
+	return strings.TrimSpace(text), nil
 }
