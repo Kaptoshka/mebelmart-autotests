@@ -235,7 +235,7 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 	cardName, err := card.FindCSS(
 		".product-card__name",
 		"Product card name",
-	).Text()
+	).GetText()
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card name: %w", err)
 	}
@@ -286,7 +286,7 @@ func (p *CatalogPage) GetParamCSS(
 	elem elements.Element,
 	selector string,
 ) (string, error) {
-	return elem.FindCSS(selector, "Parameter value retrieving").Text()
+	return elem.FindCSS(selector, "Parameter value retrieving").GetText()
 }
 
 func (p *CatalogPage) GetURL(
