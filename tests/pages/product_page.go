@@ -54,18 +54,18 @@ func (p *ProductPage) GetDetails(
 		"filter", filter,
 	)
 
-	productFilterLocator := p.CSS(
-		".product-tab__block .table td",
-		"Get product filter",
-	).FilterByText(
+	xpath := fmt.Sprintf(
+		`//div[contains(@class,'product-tab__block')]//td[contains(.,'%s')]`+
+			`/following-sibling::td[1]`,
 		filter,
-		"Get product filter value",
 	)
 
-	productFilterStr, err := productFilterLocator.FindCSS(
-		"xpath=following-sibling::td[1]",
-		"Get product filter value",
-	).GetText()
+	valueLocator := p.XPath(
+		xpath,
+		fmt.Sprintf("Filter value for [%s]", filter),
+	)
+
+	productFilterStr, err := valueLocator.GetText()
 	if err != nil {
 		return nil, fmt.Errorf(
 			"cannot get product filter: %w",

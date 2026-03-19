@@ -69,11 +69,10 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 		"to", to,
 	)
 
+	selector := fmt.Sprintf(`.filter__item:has(.filter__title:has-text("%s"))`, filterName)
+
 	filterContainer := p.CSS(
-		".filter__item .filter__title",
-		"Filter title",
-	).FilterByText(
-		filterName,
+		selector,
 		"Filter title",
 	)
 
@@ -240,11 +239,10 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 	}
 
 	cardName = strings.TrimSpace(cardName)
-	paramSelector := ".text-center small:has-text('%s')"
 
 	cardWidthStr, err := p.GetParamCSS(
-		*card,
-		fmt.Sprintf(paramSelector, "Ширина"),
+		card,
+		"Ширина",
 	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card width: %w", err)
@@ -256,8 +254,8 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 	}
 
 	cardDepthStr, err := p.GetParamCSS(
-		*card,
-		fmt.Sprintf(paramSelector, "Глубина"),
+		card,
+		"Глубина",
 	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card depth: %w", err)
@@ -282,10 +280,13 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 }
 
 func (p *CatalogPage) GetParamCSS(
-	elem elements.Element,
-	selector string,
+	elem *elements.Element,
+	paramName string,
 ) (string, error) {
-	return elem.FindCSS(selector, "Parameter value retrieving").GetText()
+	return elem.FindCSS(
+		".text-center small",
+		fmt.Sprintf("Parameter '%s'", paramName),
+	).FilterByText(paramName, paramName).GetText()
 }
 
 func (p *CatalogPage) GetURL(

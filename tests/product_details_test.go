@@ -79,14 +79,19 @@ func TestCheckProductDetails(t *testing.T) {
 	)
 	require.NoError(t, testErr)
 
-	var details *testpages.ProductDetails
 	testErr = s.Step(
 		"Navigate to product page",
 		func() error {
+			return productDetails.Navigate(card.URL)
+		},
+	)
+	require.NoError(t, testErr)
+
+	var details *testpages.ProductDetails
+	testErr = s.Step(
+		"Get product details",
+		func() error {
 			var err error
-			if err = productDetails.Navigate(card.URL); err != nil {
-				return err
-			}
 			details, err = productDetails.GetDetails(card.Name, ProductFilter)
 			if err != nil {
 				return err
