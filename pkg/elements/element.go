@@ -63,11 +63,11 @@ func newElement(
 }
 
 func (e *Element) WaitForVisible() error {
-	e.log.Debug("waiting for element to be visible", "element", e.description)
+	e.log.Debug("Waiting for element to be visible", "element", e.description)
 
 	if err := e.locator.WaitFor(playwright.LocatorWaitForOptions{
 		State:   playwright.WaitForSelectorStateVisible,
-		Timeout: new(float64(e.timeout.Milliseconds())),
+		Timeout: new(float64(e.timeout)),
 	}); err != nil {
 		return fmt.Errorf("element [%s] not visible after %v: %w", e.description, e.timeout, err)
 	}
@@ -76,11 +76,11 @@ func (e *Element) WaitForVisible() error {
 }
 
 func (e *Element) WaitForHidden() error {
-	e.log.Debug("waiting for element to be hidden", "element", e.description)
+	e.log.Debug("Waiting for element to be hidden", "element", e.description)
 
 	if err := e.locator.WaitFor(playwright.LocatorWaitForOptions{
 		State:   playwright.WaitForSelectorStateHidden,
-		Timeout: new(float64(e.timeout.Milliseconds())),
+		Timeout: new(float64(e.timeout)),
 	}); err != nil {
 		return fmt.Errorf("element [%s] not visible after %v: %w", e.description, e.timeout, err)
 	}
@@ -89,27 +89,19 @@ func (e *Element) WaitForHidden() error {
 }
 
 func (e *Element) Click() error {
-	e.log.Debug("clicking element", "element", e.description)
-
-	if err := e.WaitForVisible(); err != nil {
-		return err
-	}
+	e.log.Debug("Clicking element", "element", e.description)
 
 	if err := e.locator.Click(); err != nil {
 		return fmt.Errorf("failed to click [%s]: %w", e.description, err)
 	}
 
-	e.log.Debug("clicked element", "element", e.description)
+	e.log.Debug("Clicked element", "element", e.description)
 
 	return nil
 }
 
 func (e *Element) Fill(text string) error {
-	e.log.Debug("filling element", "element", e.description, "text", text)
-
-	if err := e.WaitForVisible(); err != nil {
-		return err
-	}
+	e.log.Debug("Filling element", "element", e.description, "text", text)
 
 	if err := e.locator.Fill(text); err != nil {
 		return fmt.Errorf("failed to fill [%s]: %w", e.description, err)
@@ -119,7 +111,7 @@ func (e *Element) Fill(text string) error {
 }
 
 func (e *Element) Clear() error {
-	e.log.Debug("clearing element", "element", e.description)
+	e.log.Debug("Clearing element", "element", e.description)
 
 	if err := e.WaitForVisible(); err != nil {
 		return err
@@ -133,24 +125,24 @@ func (e *Element) Clear() error {
 }
 
 func (e *Element) GetText() (string, error) {
-	if err := e.WaitForVisible(); err != nil {
-		return "", err
-	}
+	e.log.Debug("Getting text from element", "element", e.description)
 
 	text, err := e.locator.TextContent()
 	if err != nil {
 		return "", fmt.Errorf("failed to get text from [%s]: %w", e.description, err)
 	}
 
-	e.log.Debug("got text from element", "element", e.description, "text", text)
+	e.log.Debug("Got text from element", "element", e.description, "text", text)
 
 	return text, nil
 }
 
 func (e *Element) GetAttribute(attr string) (string, error) {
-	if err := e.WaitForVisible(); err != nil {
-		return "", err
-	}
+	e.log.Debug(
+		"Getting attribute",
+		"element", e.description,
+		"attribute", attr,
+	)
 
 	value, err := e.locator.GetAttribute(attr)
 	if err != nil {
@@ -184,10 +176,7 @@ func (e *Element) IsEnabled() (bool, error) {
 }
 
 func (e *Element) SelectOption(value string) error {
-	e.log.Debug("selecting option", "value", value, "element", e.description)
-	if err := e.WaitForVisible(); err != nil {
-		return err
-	}
+	e.log.Debug("Selecting option", "value", value, "element", e.description)
 
 	_, err := e.locator.SelectOption(playwright.SelectOptionValues{
 		Values: &[]string{value},
@@ -206,10 +195,6 @@ func (e *Element) SelectOption(value string) error {
 
 func (e *Element) Hover() error {
 	e.log.Debug("hovering over element", "element", e.description)
-
-	if err := e.WaitForVisible(); err != nil {
-		return err
-	}
 
 	if err := e.locator.Hover(); err != nil {
 		return fmt.Errorf("failed to hover over [%s]: %w", e.description, err)
@@ -233,7 +218,11 @@ func (e *Element) ScrollIntoView() error {
 }
 
 func (e *Element) FilterByText(text string, description string) *Element {
-	e.log.Debug("Filtering element by text", "element", e.description, "text", text)
+	e.log.Debug(
+		"Filtering element by text",
+		"element", e.description,
+		"text", text,
+	)
 
 	return &Element{
 		page: e.page,
@@ -247,7 +236,11 @@ func (e *Element) FilterByText(text string, description string) *Element {
 }
 
 func (e *Element) FindCSS(subSelector string, description string) *Element {
-	e.log.Debug("Finding sub-element by CSS", "parent", e.description, "child", description)
+	e.log.Debug(
+		"Finding sub-element by CSS",
+		"parent", e.description,
+		"child", description,
+	)
 
 	return &Element{
 		page:        e.page,
@@ -259,7 +252,11 @@ func (e *Element) FindCSS(subSelector string, description string) *Element {
 }
 
 func (e *Element) FindXPath(xpath string, description string) *Element {
-	e.log.Debug("Finding sub-element by XPath", "parent", e.description, "child", description)
+	e.log.Debug(
+		"Finding sub-element by XPath",
+		"parent", e.description,
+		"child", description,
+	)
 
 	return &Element{
 		page:        e.page,
