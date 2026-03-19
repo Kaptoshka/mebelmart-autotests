@@ -27,7 +27,7 @@ func TestFilterProductAndCheckIsAvailable(t *testing.T) {
 			testdata.MinBorder,
 			testdata.MaxBorder,
 		),
-		Severity: "normal",
+		Severity: suite.SeverityNormal,
 		Feature:  "filters",
 	})
 

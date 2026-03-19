@@ -29,7 +29,7 @@ func TestCheckProductDetails(t *testing.T) {
 
 	s.SetMeta(suite.TestMeta{
 		Description: "Check product card details and compare value with details on product page",
-		Severity:    "normal",
+		Severity:    suite.SeverityNormal,
 		Feature:     "checkout",
 	})
 

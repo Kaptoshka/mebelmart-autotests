@@ -42,7 +42,7 @@ func TestAddProductToWishlist(t *testing.T) {
 
 	s.SetMeta(suite.TestMeta{
 		Description: "Add product to wishlist, check that product is added to wishlist",
-		Severity:    "normal",
+		Severity:    suite.SeverityNormal,
 		Feature:     "wishlist",
 	})
 
@@ -102,7 +102,10 @@ func TestAddProductToWishlist(t *testing.T) {
 				strings.TrimSpace(productNameWishlist),
 				strings.TrimSpace(productCatalogURL),
 			) {
-				return fmt.Errorf("product [%s] not found in wishlist", testdata.ProductName)
+				return fmt.Errorf(
+					"product [%s] not found in wishlist",
+					testdata.ProductName,
+				)
 			}
 
 			return nil

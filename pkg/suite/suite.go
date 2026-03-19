@@ -28,6 +28,14 @@ type TestMeta struct {
 	Feature     string
 }
 
+const (
+	SeverityBlocker  = "blocker"
+	SeverityCritical = "critical"
+	SeverityNormal   = "normal"
+	SeverityMinor    = "minor"
+	SeverityTrivial  = "trivial"
+)
+
 func New(t *testing.T, suiteName string) *TestSuite {
 	cfg := config.Load()
 
