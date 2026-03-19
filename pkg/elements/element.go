@@ -324,3 +324,37 @@ func (e *Element) Press(key string) error {
 
 	return nil
 }
+
+func (e *Element) GetBoundingBox() (*playwright.Rect, error) {
+	e.log.Debug(
+		"Getting bounding box",
+		"element",
+		e.description,
+	)
+
+	if err := e.WaitForVisible(); err != nil {
+		return nil, fmt.Errorf(
+			"cannot get bounding box for [%s]: %w",
+			e.description,
+			err,
+		)
+	}
+
+	box, err := e.locator.BoundingBox()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"failed to get bounding box for [%s]: %w",
+			e.description,
+			err,
+		)
+	}
+
+	if box == nil {
+		return nil, fmt.Errorf(
+			"bounding box for [%s] is nil (element is not visible or detached)",
+			e.description,
+		)
+	}
+
+	return box, nil
+}
