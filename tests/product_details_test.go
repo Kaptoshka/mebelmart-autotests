@@ -37,13 +37,13 @@ func TestCheckProductDetails(t *testing.T) {
 		s.Browser.Page,
 		s.Config.BaseURL,
 		s.Config.Timeout,
-		s.Log,
+		s.Log.With("page", "CatalogPage"),
 	)
 	productDetails := testpages.NewProductPage(
 		s.Browser.Page,
 		s.Config.BaseURL,
 		s.Config.Timeout,
-		s.Log,
+		s.Log.With("page", "ProductPage"),
 	)
 
 	testErr = s.Step(

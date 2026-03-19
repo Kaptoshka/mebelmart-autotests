@@ -30,8 +30,8 @@ func NewProductPage(
 			page,
 			baseURL,
 			timeout,
-			"ProductDetailsPage",
-			testLog.With("page", "ProductDetailsPage"),
+			"ProductPage",
+			testLog,
 		),
 	}
 }
