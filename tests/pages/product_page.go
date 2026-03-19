@@ -54,17 +54,18 @@ func (p *ProductPage) GetDetails(
 		"filter", filter,
 	)
 
-	productFilterLocator := p.Page.Locator(
+	productFilterLocator := p.CSS(
 		".product-tab__block .table td",
-	).Filter(
-		playwright.LocatorFilterOptions{
-			HasText: filter,
-		},
+		"Get product filter",
+	).FilterByText(
+		filter,
+		"Get product filter value",
 	)
 
-	productFilterStr, err := productFilterLocator.Locator(
+	productFilterStr, err := productFilterLocator.FindCSS(
 		"xpath=following-sibling::td[1]",
-	).TextContent()
+		"Get product filter value",
+	).GetText()
 	if err != nil {
 		return nil, fmt.Errorf(
 			"cannot get product filter: %w",

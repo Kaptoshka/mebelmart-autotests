@@ -69,23 +69,26 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 		"to", to,
 	)
 
-	filterContainer := p.Page.Locator(".filter__item").Filter(
-		playwright.LocatorFilterOptions{
-			Has: p.Page.Locator(".filter__title").Filter(
-				playwright.LocatorFilterOptions{
-					HasText: filterName,
-				},
-			),
-		},
+	filterContainer := p.CSS(
+		".filter__item .filter__title",
+		"Filter title",
+	).FilterByText(
+		filterName,
+		"Filter title",
 	)
 
-	minHandle := filterContainer.Locator(
+	minHandle := filterContainer.FindCSS(
 		".slider-handle.min-slider-handle",
+		"Minslider handle",
 	)
-	maxHandle := filterContainer.Locator(
+	maxHandle := filterContainer.FindCSS(
 		".slider-handle.max-slider-handle",
+		"Maxslider handle",
 	)
-	track := filterContainer.Locator(".slider-track")
+	track := filterContainer.FindCSS(
+		".slider-track",
+		"Slider track",
+	)
 
 	absMinStr, err := minHandle.GetAttribute("aria-valuemin")
 	if err != nil {
@@ -114,7 +117,7 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 		)
 	}
 
-	trackBox, err := track.BoundingBox()
+	trackBox, err := track.GetBoundingBox()
 	if err != nil {
 		return fmt.Errorf("cannot get track bounding box: %w", err)
 	}
@@ -140,36 +143,32 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 }
 
 func (p *CatalogPage) dragHandleTo(
-	handle playwright.Locator,
+	handle *elements.Element,
 	targetX float64,
 	targetY float64,
 ) error {
-	const centerDivisor = 2
+	p.Log.Debug(
+		"Dragging handle to coordinates",
+		"x", targetX,
+		"y", targetY,
+	)
 
-	box, err := handle.BoundingBox()
-	if err != nil {
-		return fmt.Errorf("cannot get handle bounding box: %w", err)
+	if err := handle.Hover(); err != nil {
+		return fmt.Errorf("failed to hover handle: %w", err)
 	}
-
-	startX := box.X + box.Width/centerDivisor
-	startY := box.Y + box.Height/centerDivisor
 
 	mouse := p.Page.Mouse()
 
-	if err = mouse.Move(startX, startY); err != nil {
-		return err
-	}
-
-	if err = mouse.Down(); err != nil {
-		return err
+	if err := mouse.Down(); err != nil {
+		return fmt.Errorf("failed to press mouse button: %w", err)
 	}
 
 	steps := 10
 
-	if err = p.Page.Mouse().Move(targetX, targetY, playwright.MouseMoveOptions{
+	if err := p.Page.Mouse().Move(targetX, targetY, playwright.MouseMoveOptions{
 		Steps: new(steps),
 	}); err != nil {
-		return err
+		return fmt.Errorf("failed to move mouse to target: %w", err)
 	}
 
 	return mouse.Up()

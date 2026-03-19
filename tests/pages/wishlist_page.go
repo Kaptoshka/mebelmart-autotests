@@ -32,7 +32,10 @@ func NewWishlistPage(
 }
 
 func (p *WishlistPage) GetItemsCount() (int, error) {
-	return p.Page.Locator(".page-favorite .product-card").Count()
+	return p.CSS(
+		".page-favorite .product-card",
+		"Get wishlist items count",
+	).Count()
 }
 
 func (p *WishlistPage) Clear() error {
@@ -50,12 +53,13 @@ func (p *WishlistPage) Clear() error {
 
 		p.Log.Debug("Items remaining", "count", count)
 
-		removeBtn := p.Page.Locator(
+		removeBtn := p.CSS(
 			".product-card__favorite-delete",
-		).First()
+			"Get remove from wishlist button",
+		).First("First remove from wishlist button")
 
 		if err = removeBtn.Click(); err != nil {
-			return fmt.Errorf("cannot click remove button: %w", err)
+			return fmt.Errorf("cannot click remove from wishlist button: %w", err)
 		}
 
 		if err = p.WaitForNetworkIdle(); err != nil {
@@ -75,8 +79,9 @@ func (p *WishlistPage) IsEmpty() (bool, error) {
 func (p *WishlistPage) FindProductURL(name string) (string, error) {
 	p.Log.Debug("Checking product in wishlist", "name", name)
 
-	productURL, err := p.Page.Locator(
+	productURL, err := p.CSS(
 		".page-favorite .product-card__name a",
+		"Get product url in wishlist",
 	).GetAttribute("href")
 	if err != nil {
 		p.Log.Error(
