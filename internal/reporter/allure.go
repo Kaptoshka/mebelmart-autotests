@@ -182,7 +182,7 @@ func (r *AllureReporter) SetFailed(err error) {
 	}
 }
 
-// SetBroken marks the test as broken (infrastructure issue)
+// SetBroken marks the test as broken (infrastructure issue).
 func (r *AllureReporter) SetBroken(err error) {
 	r.result.Status = StatusBroken
 	r.result.StatusDetails = &StatusDetails{
