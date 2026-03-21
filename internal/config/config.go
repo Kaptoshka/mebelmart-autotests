@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// BrowserType defines supported browser types.
 type BrowserType string
 
 const (
@@ -26,6 +27,7 @@ const (
 	DefaultTracesDir = "./artifacts/traces"
 )
 
+// Config holds all framework configuration.
 type Config struct {
 	Browser         BrowserType
 	Headless        bool
@@ -39,6 +41,7 @@ type Config struct {
 	ViewportHeight  int
 }
 
+// Load reads configuration from environment variables with sensible defaults.
 func Load() *Config {
 	_ = godotenv.Load(os.Getenv("ENV_FILE"))
 

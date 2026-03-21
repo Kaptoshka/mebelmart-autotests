@@ -11,6 +11,7 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
+// Manager manages the browser and page lifecycle.
 type Manager struct {
 	pw      *playwright.Playwright
 	browser playwright.Browser
@@ -20,6 +21,7 @@ type Manager struct {
 	log     *slog.Logger
 }
 
+// New creates a new instance of Manager.
 func New(cfg *config.Config, log *slog.Logger) *Manager {
 	return &Manager{
 		cfg: cfg,
@@ -27,6 +29,7 @@ func New(cfg *config.Config, log *slog.Logger) *Manager {
 	}
 }
 
+// Launch starts the browser and creates a new page.
 func (m *Manager) Launch() error {
 	m.log.Info("Launching Playwright...")
 
@@ -84,6 +87,7 @@ func (m *Manager) Launch() error {
 	return nil
 }
 
+// Close closes the browser, and Playwright, saves trace if needed.
 func (m *Manager) Close() error {
 	if os.Getenv("TRACE") == "true" {
 		traceDir := config.DefaultTracesDir
@@ -124,6 +128,7 @@ func (m *Manager) Close() error {
 	return nil
 }
 
+// NavigateTo navigates to the specified URL.
 func (m *Manager) NavigateTo(url string) error {
 	m.log.Info("Navigating to", "url", url)
 	if _, err := m.Page.Goto(url, playwright.PageGotoOptions{

@@ -10,6 +10,7 @@ import (
 	"autotests/internal/config"
 )
 
+// New creates a new instance of Logger with level from environment variables.
 func New() *slog.Logger {
 	level := os.Getenv("LOG_LEVEL")
 
@@ -38,6 +39,7 @@ func New() *slog.Logger {
 	}))
 }
 
+// ForTest returns a logger with test name context.
 func ForTest(t *testing.T) *slog.Logger {
 	return New().With("test", t.Name())
 }

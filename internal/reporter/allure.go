@@ -11,6 +11,7 @@ import (
 	uuidG "github.com/google/uuid"
 )
 
+// Status represents test result status.
 type Status string
 
 const (
@@ -20,12 +21,14 @@ const (
 	StatusSkipped Status = "skipped"
 )
 
+// Attachment holds a test attachment.
 type Attachment struct {
 	Name   string `json:"name"`
 	Source string `json:"source"`
 	Type   string `json:"type"`
 }
 
+// Step represents a test step in Allure report.
 type Step struct {
 	Name        string       `json:"name"`
 	Status      Status       `json:"status"`
@@ -35,16 +38,19 @@ type Step struct {
 	Steps       []Step       `json:"steps"`
 }
 
+// Label is an Allure label.
 type Label struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
 
+// StatusDetails holds failure details.
 type StatusDetails struct {
-	Message string `json:"message"`
-	Trace   string `json:"trace"`
+	Message string `json:"message,omitempty"`
+	Trace   string `json:"trace,omitempty"`
 }
 
+// TestResult is an Allure test result structure.
 type TestResult struct {
 	UUID          string         `json:"uuid"`
 	HistoryID     string         `json:"historyId"`
@@ -60,6 +66,7 @@ type TestResult struct {
 	StatusDetails *StatusDetails `json:"statusDetails.omitempty"`
 }
 
+// AllureReporter manages Allure report generation.
 type AllureReporter struct {
 	outputDir string
 	result    *TestResult
@@ -68,6 +75,7 @@ type AllureReporter struct {
 	log       *slog.Logger
 }
 
+// New creates reporter for a test.
 func New(outputDir, testName, suiteName string, log *slog.Logger) *AllureReporter {
 	if err := os.MkdirAll(outputDir, 0o700); err != nil {
 		log.Warn("could not create allure results dir", "err", err)
@@ -101,6 +109,7 @@ func New(outputDir, testName, suiteName string, log *slog.Logger) *AllureReporte
 	}
 }
 
+// StartStep begins a new test step.
 func (r *AllureReporter) StartStep(name string) {
 	r.log.Info(name)
 	step := &Step{
@@ -119,6 +128,7 @@ func (r *AllureReporter) StartStep(name string) {
 	}
 }
 
+// StopStep finalizes the current step.
 func (r *AllureReporter) StopStep(status Status) {
 	if len(r.stepStack) == 0 {
 		return
@@ -129,6 +139,7 @@ func (r *AllureReporter) StopStep(status Status) {
 	r.stepStack = r.stepStack[:len(r.stepStack)-1]
 }
 
+// AddScreenshot attaches a screenshot to current step or test.
 func (r *AllureReporter) AddScreenshot(screenshotBytes []byte, name string) error {
 	uuid, err := uuidG.NewV7()
 	if err != nil {
@@ -158,6 +169,7 @@ func (r *AllureReporter) AddScreenshot(screenshotBytes []byte, name string) erro
 	return nil
 }
 
+// SetFailed marks the test as failed with details.
 func (r *AllureReporter) SetFailed(err error) {
 	r.result.Status = StatusFailed
 	r.result.StatusDetails = &StatusDetails{
@@ -170,6 +182,7 @@ func (r *AllureReporter) SetFailed(err error) {
 	}
 }
 
+// SetBroken marks the test as broken (infrastructure issue)
 func (r *AllureReporter) SetBroken(err error) {
 	r.result.Status = StatusBroken
 	r.result.StatusDetails = &StatusDetails{
@@ -177,6 +190,7 @@ func (r *AllureReporter) SetBroken(err error) {
 	}
 }
 
+// AddLabel adds a label to the test result.
 func (r *AllureReporter) AddLabel(name, value string) {
 	r.result.Labels = append(r.result.Labels, Label{
 		Name:  name,
@@ -184,10 +198,12 @@ func (r *AllureReporter) AddLabel(name, value string) {
 	})
 }
 
+// SetDescription sets the test description.
 func (r *AllureReporter) SetDescription(desc string) {
 	r.result.Description = desc
 }
 
+// Finalize writes the result JSON to disk.
 func (r *AllureReporter) Finalize() error {
 	r.result.Stop = time.Now().UnixMilli()
 
