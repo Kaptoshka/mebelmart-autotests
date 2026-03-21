@@ -12,6 +12,7 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
+// BasePage is the base struct for all Page Objects.
 type BasePage struct {
 	Page    playwright.Page
 	BaseURL string
@@ -20,6 +21,7 @@ type BasePage struct {
 	Log     *slog.Logger
 }
 
+// New creates a new BasePage.
 func New(
 	page playwright.Page,
 	baseURL string,
@@ -36,6 +38,7 @@ func New(
 	}
 }
 
+// Navigate opens the page at the given path relative to BaseURL.
 func (p *BasePage) Navigate(path string) error {
 	url := p.BaseURL + path
 
@@ -51,6 +54,7 @@ func (p *BasePage) Navigate(path string) error {
 	return nil
 }
 
+// WaitForURL waits until the current URL matches the expected value.
 func (p *BasePage) WaitForURL(urlPattern string) error {
 	p.Log.Info("waiting for URL", "pattern", urlPattern)
 
@@ -63,6 +67,7 @@ func (p *BasePage) WaitForURL(urlPattern string) error {
 	return nil
 }
 
+// GetTitle returns the current page title.
 func (p *BasePage) GetTitle() (string, error) {
 	title, err := p.Page.Title()
 	if err != nil {
@@ -72,18 +77,22 @@ func (p *BasePage) GetTitle() (string, error) {
 	return title, nil
 }
 
+// GetCurrentURL returns the current URL.
 func (p *BasePage) GetCurrentURL() string {
 	return p.Page.URL()
 }
 
+// CSS creates an element using a CSS selector.
 func (p *BasePage) CSS(selector, description string) *elements.Element {
 	return elements.NewCSS(p.Page, selector, description, p.Timeout, p.Log)
 }
 
+// XPath creates an element using an XPath expression.
 func (p *BasePage) XPath(selector, description string) *elements.Element {
 	return elements.NewXPath(p.Page, selector, description, p.Timeout, p.Log)
 }
 
+// WaitForNetworkIdle waits for network to be idle.
 func (p *BasePage) WaitForNetworkIdle() error {
 	p.Log.Debug("waiting for network idle")
 
@@ -97,6 +106,7 @@ func (p *BasePage) WaitForNetworkIdle() error {
 	return nil
 }
 
+// ExecuteScript runs JavaScript on the page.
 func (p *BasePage) ExecuteScript(script string, args ...any) (any, error) {
 	result, err := p.Page.Evaluate(script, args...)
 	if err != nil {
@@ -106,6 +116,7 @@ func (p *BasePage) ExecuteScript(script string, args ...any) (any, error) {
 	return result, nil
 }
 
+// ParseInt extracts and converts a string to an integer.
 func (p *BasePage) ParseInt(s string) (int, error) {
 	re := regexp.MustCompile(`[^0-9]`)
 	cleanStr := re.ReplaceAllString(s, "")

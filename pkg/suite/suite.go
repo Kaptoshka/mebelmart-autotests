@@ -12,6 +12,7 @@ import (
 	"autotests/internal/screenshot"
 )
 
+// TestSuite is the base for all test suites.
 type TestSuite struct {
 	T          *testing.T
 	Config     *config.Config
@@ -22,6 +23,7 @@ type TestSuite struct {
 	Log        *slog.Logger
 }
 
+// TestMeta contains metadata for a test.
 type TestMeta struct {
 	Description string
 	Severity    string
@@ -36,6 +38,7 @@ const (
 	SeverityTrivial  = "trivial"
 )
 
+// New creates a configured test suite.
 func New(t *testing.T, suiteName string) *TestSuite {
 	cfg := config.Load()
 
@@ -46,6 +49,7 @@ func New(t *testing.T, suiteName string) *TestSuite {
 	}
 }
 
+// Setup initializes the browser and reporters for a test.
 func (s *TestSuite) Setup(testName string) error {
 	s.Log = logger.ForTest(s.T)
 	s.Screenshot = screenshot.New(s.Log)
@@ -62,6 +66,7 @@ func (s *TestSuite) Setup(testName string) error {
 	return nil
 }
 
+// Teardown handles cleanup, screenshots on failure, and finalizes reports.
 func (s *TestSuite) Teardown(testName string, testErr *error) {
 	if testErr != nil && *testErr != nil {
 		s.Log.Warn("test FAILED -- capturing screenshot", "test", testName)
@@ -85,6 +90,7 @@ func (s *TestSuite) Teardown(testName string, testErr *error) {
 	s.Log.Info("test teardown complete", "test", testName)
 }
 
+// Step records a named step in the report and logs it.
 func (s *TestSuite) Step(name string, fn func() error) error {
 	s.Reporter.StartStep(name)
 
@@ -97,6 +103,7 @@ func (s *TestSuite) Step(name string, fn func() error) error {
 	return nil
 }
 
+// NavigateTo opens a URL using the managed browser page.
 func (s *TestSuite) NavigateTo(url string) error {
 	return s.Browser.NavigateTo(url)
 }
@@ -106,6 +113,7 @@ type label struct {
 	value string
 }
 
+// SetMeta sets metadata for the test.
 func (s *TestSuite) SetMeta(meta TestMeta) {
 	if meta.Description != "" {
 		s.Reporter.SetDescription(meta.Description)
