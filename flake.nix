@@ -48,11 +48,11 @@
 
           shellHook = ''
             echo "Go E2E Autotest Framework"
-            echo "  Go version: $(go version)"
-            echo "  Node version: $(node --version)"
-            echo "  Chromium rev: ${chromium-rev}"
-            echo "  Firefox rev: ${firefox-rev}"
-            echo "  WebKit rev: ${webkit-rev}"
+            echo "- Go version: $(go version)"
+            echo "- Node version: $(node --version)"
+            echo "- Chromium rev: ${chromium-rev}"
+            echo "- Firefox rev: ${firefox-rev}"
+            echo "- WebKit rev: ${webkit-rev}"
 
             export ENV_FILE="$PWD/.env"
 
