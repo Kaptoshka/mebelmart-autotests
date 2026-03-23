@@ -41,6 +41,13 @@ func (p *WishlistPage) GetItemsCount() (int, error) {
 func (p *WishlistPage) Clear() error {
 	p.Log.Debug("Clearing wishlist")
 
+	if err := p.Navigate("/favorite"); err != nil {
+		return fmt.Errorf(
+			"cannot navigate to wishlist for clearing: %w",
+			err,
+		)
+	}
+
 	for {
 		count, err := p.GetItemsCount()
 		if err != nil {

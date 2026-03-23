@@ -12,8 +12,9 @@ import (
 	"github.com/playwright-community/playwright-go"
 )
 
-type ProductCard struct {
+type Product struct {
 	Name  string
+	Price int
 	Width int
 	Depth int
 	URL   string
@@ -69,7 +70,10 @@ func (p *CatalogPage) SetRangeSliderByDrag(
 		"to", to,
 	)
 
-	selector := fmt.Sprintf(`.filter__item:has(.filter__title:has-text("%s"))`, filterName)
+	selector := fmt.Sprintf(
+		`.filter__item:has(.filter__title:has-text("%s"))`,
+		filterName,
+	)
 
 	filterContainer := p.CSS(
 		selector,
@@ -223,7 +227,7 @@ func (p *CatalogPage) FindProduct(
 	return nil
 }
 
-func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
+func (p *CatalogPage) GetProductCard(name string) (*Product, error) {
 	p.Log.Debug("Getting product card", "name", name)
 
 	card := p.productCards.FilterByText(name, "Card for "+name).First(
@@ -266,13 +270,30 @@ func (p *CatalogPage) GetProductCard(name string) (*ProductCard, error) {
 		return nil, fmt.Errorf("cannot parse card depth to int: %w", err)
 	}
 
+	cardPriceStr, err := card.FindCSS(
+		".product-card__now_price:not(.product-card__old_price) span b",
+		fmt.Sprintf(
+			"Retrieve current price of product [%s]",
+			name,
+		),
+	).GetText()
+	if err != nil {
+		return nil, fmt.Errorf("cannot get card price: %w", err)
+	}
+
+	price, err := p.ParseInt(cardPriceStr)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse card price to int: %w", err)
+	}
+
 	url, err := p.GetURL(card, ".product-card__name a")
 	if err != nil {
 		return nil, fmt.Errorf("cannot get card URL: %w", err)
 	}
 
-	return &ProductCard{
+	return &Product{
 		Name:  cardName,
+		Price: price,
 		Width: width,
 		Depth: depth,
 		URL:   url,
@@ -319,15 +340,6 @@ func (p *CatalogPage) AddToWishlist(name string) error {
 	).FindCSS(
 		".product-card__favorites .favorite-icon",
 		"Favorite icon",
-	).Click()
-}
-
-func (p *CatalogPage) OpenWishlist() error {
-	p.Log.Debug("Click button that opens wishlist")
-
-	return p.CSS(
-		"header .container .favorite-informer:visible",
-		"Wishlist link",
 	).Click()
 }
 

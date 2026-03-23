@@ -3,8 +3,10 @@ package cases
 const (
 	CatalogURL  = "/myagkaya_mebel_v_saratove/divanyi_v_saratove"
 	FilterName  = "Цена"
-	ProductName = "Диван Чебурашка"
+	ProductName = "Диван ЧБ"
 
-	MinBorder = 9315
-	MaxBorder = 10815
+	SearchQuery = "Чебурашка"
+
+	MinBorder = 10000
+	MaxBorder = 15000
 )

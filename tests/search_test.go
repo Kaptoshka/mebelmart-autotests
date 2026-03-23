@@ -15,7 +15,7 @@ import (
 )
 
 func TestSearchProduct(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	s := suite.New(t, "SearchProduct")
 

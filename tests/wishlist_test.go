@@ -8,12 +8,13 @@ import (
 	"autotests/pkg/suite"
 	testdata "autotests/tests"
 	testpages "autotests/tests/pages"
+	components "autotests/tests/pages/components"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestAddProductToWishlist(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	s := suite.New(t, "AddProductToWishlist")
 
@@ -21,6 +22,11 @@ func TestAddProductToWishlist(t *testing.T) {
 		t.Fatalf("setup failed: %v", err)
 	}
 
+	header := components.NewHeader(
+		s.Browser.Page,
+		s.Config.Timeout,
+		s.Log.With("component", "Header"),
+	)
 	catalogPage := testpages.NewCatalogPage(
 		s.Browser.Page,
 		s.Config.BaseURL,
@@ -35,9 +41,12 @@ func TestAddProductToWishlist(t *testing.T) {
 	)
 
 	var testErr error
+	defer s.Teardown(t.Name(), &testErr)
+
 	defer func() {
-		_ = wishlistPage.Clear()
-		s.Teardown(t.Name(), &testErr)
+		if err := wishlistPage.Clear(); err != nil {
+			s.Log.Warn("Failed to clear wishlist", "err", err)
+		}
 	}()
 
 	s.SetMeta(suite.TestMeta{
@@ -83,7 +92,7 @@ func TestAddProductToWishlist(t *testing.T) {
 	testErr = s.Step(
 		"Navigate to wishlist page",
 		func() error {
-			return catalogPage.OpenWishlist()
+			return header.OpenWishlist()
 		},
 	)
 	require.NoError(t, testErr)

@@ -17,6 +17,8 @@ type Header struct {
 
 	searchInput *elements.Element
 	searchBtn   *elements.Element
+	wishlistBtn *elements.Element
+	cartBtn     *elements.Element
 }
 
 func NewHeader(
@@ -26,8 +28,9 @@ func NewHeader(
 ) *Header {
 	return &Header{
 		page:    page,
-		Log:     log,
 		timeout: timeout,
+		Log:     log,
+
 		searchInput: elements.NewCSS(
 			page,
 			"header .search .input-group input:visible",
@@ -39,6 +42,20 @@ func NewHeader(
 			page,
 			"header .search .input-group button.submit:visible",
 			"Search Button",
+			timeout,
+			log,
+		),
+		wishlistBtn: elements.NewCSS(
+			page,
+			"header .container .favorite-informer:visible",
+			"Wishlist Button",
+			timeout,
+			log,
+		),
+		cartBtn: elements.NewCSS(
+			page,
+			"header .cart-counter:visible",
+			"Cart Button",
 			timeout,
 			log,
 		),
@@ -61,4 +78,16 @@ func (h *Header) Search(query string) error {
 	}
 
 	return nil
+}
+
+func (h *Header) OpenWishlist() error {
+	h.Log.Debug("Click button that opens wishlist")
+
+	return h.wishlistBtn.Click()
+}
+
+func (h *Header) OpenCart() error {
+	h.Log.Debug("Click button that opens cart")
+
+	return h.cartBtn.Click()
 }

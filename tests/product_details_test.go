@@ -16,7 +16,7 @@ const (
 )
 
 func TestCheckProductDetails(t *testing.T) {
-	t.Parallel()
+	// t.Parallel()
 
 	s := suite.New(t, "CheckProductDetails")
 
@@ -57,7 +57,7 @@ func TestCheckProductDetails(t *testing.T) {
 	)
 	require.NoError(t, testErr)
 
-	var card *testpages.ProductCard
+	var card *testpages.Product
 	testErr = s.Step(
 		fmt.Sprintf(
 			"Get product card data '%s'",
@@ -87,18 +87,20 @@ func TestCheckProductDetails(t *testing.T) {
 	)
 	require.NoError(t, testErr)
 
-	var details *testpages.ProductDetails
+	var details *testpages.Product
 	testErr = s.Step(
 		"Get product details",
 		func() error {
 			var err error
-			details, err = productDetails.GetDetails(card.Name, ProductFilter)
+			details, err = productDetails.GetDetails()
 			if err != nil {
 				return err
 			}
 			s.Log.Info("Product details",
 				"name", details.Name,
-				"filter", details.Filter,
+				"price", details.Price,
+				"width", details.Width,
+				"depth", details.Depth,
 			)
 			return nil
 		},
@@ -111,12 +113,12 @@ func TestCheckProductDetails(t *testing.T) {
 			ProductFilter,
 		),
 		func() error {
-			if card.Width != details.Filter {
+			if card.Width != details.Width {
 				return fmt.Errorf(
 					"'%s' mismatch: expected '%d', got '%d'",
 					ProductFilter,
 					card.Width,
-					details.Filter,
+					details.Width,
 				)
 			}
 			return nil
