@@ -1,27 +1,15 @@
 ---
-# ==================================================================================================
-#
-#                                              NOTICE
-#
-#                     This gist is no longer maintained. It was moved to repo:
-#
-#                         https://github.com/maratori/golangci-lint-config
-#
-#                     Full history and all v2 releases are preserved in the repo.
-#
-# ==================================================================================================
-
 # This file is licensed under the terms of the MIT license https://opensource.org/license/mit
-# Copyright (c) 2021-2025 Marat Reymers
+# Copyright (c) 2021-2025 Marat Reimers
 
-## Golden config for golangci-lint v2.7.1
+## Golden config for golangci-lint v2.11.4
 #
 # This is the best config for golangci-lint based on my experience and opinion.
 # It is very strict, but not extremely strict.
 # Feel free to adapt it to suit your needs.
-# If this config helps you, please consider keeping a link to this file (see the next comment).
+# If this config helps you, please consider keeping a link to this repo (see the next comment).
 
-# Based on https://gist.github.com/maratori/47a4d00457a92aa426dbd48a18776322
+# Based on https://github.com/maratori/golangci-lint-config
 
 version: "2"
 
@@ -74,11 +62,11 @@ linters:
         - dupl # tool for code clone detection
         - durationcheck # checks for two durations multiplied together
         - embeddedstructfieldcheck # checks embedded types in structs
-        # errcheck checking for unchecked errors, these unchecked errors can be critical bugs in some cases
+        # errcheck: checking for unchecked errors, these can be critical bugs
         - errcheck
-        # errname checks that sentinel errors are prefixed with Err and error types are suffixed with Error
+        # errname: checks that sentinel errors are prefixed with Err and types suffixed with Error
         - errname
-        # errorlint finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
+        # errorlint: finds code that will cause problems with the error wrapping scheme (Go 1.13+)
         - errorlint
         - exhaustive # checks exhaustiveness of enum switch statements
         - exptostd # detects functions from golang.org/x/exp/ that can be replaced by std functions
@@ -96,10 +84,10 @@ linters:
         - gocyclo # computes and checks the cyclomatic complexity of functions
         - godoclint # checks Golang's documentation practice
         - godot # checks if comments end in a period
-        - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
+        - gomoddirectives # manages the use of 'replace', 'retract', and 'excludes' in go.mod
         - goprintffuncname # checks that printf-like functions are named with f at the end
         - gosec # inspects source code for security problems
-        # govet reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
+        # govet: reports suspicious constructs, such as Printf calls with misaligned arguments
         - govet
         - iface # checks the incorrect use of interfaces, helping developers avoid interface pollution
         - ineffassign # detects when assignments to existing variables are not used
@@ -109,12 +97,12 @@ linters:
         - makezero # finds slice declarations with non-zero initial length
         - mirror # reports wrong mirror patterns of bytes/strings usage
         - mnd # detects magic numbers
-        - modernize # suggests simplifications to Go code, using modern language and library features
+        - modernize # suggests simplifications to Go code, using modern language features
         - musttag # enforces field tags in (un)marshaled structs
         - nakedret # finds naked returns in functions greater than a specified function length
         - nestif # reports deeply nested if statements
         - nilerr # finds the code that returns nil even if it checks that the error is not nil
-        # nilnesserr reports that it checks for err != nil, but it returns a different nil value error
+        # nilnesserr: reports that it checks for err != nil, but returns a different nil value error
         - nilnesserr
         - nilnil # checks that there is no simultaneous return of nil error and an invalid value
         - noctx # finds sending http request without context.Context
@@ -139,10 +127,10 @@ linters:
         - tparallel # detects inappropriate usage of t.Parallel() method in your Go test codes
         - unconvert # removes unnecessary type conversions
         - unparam # reports unused function parameters
-        # unqueryvet detects SELECT * in SQL queries and SQL builders, encouraging explicit column selection
+        # unqueryvet: detects SELECT * in SQL queries, encouraging explicit column selection
         - unqueryvet
         - unused # checks for unused constants, variables, functions and types
-        - usestdlibvars # detects the possibility to use variables/constants from the Go standard library
+        - usestdlibvars # detects the possibility to use variables from the Go standard library
         - usetesting # reports uses of functions with replacement inside the testing package
         - wastedassign # finds wasted assignment statements
         - whitespace # detects leading and trailing whitespace
@@ -162,17 +150,17 @@ linters:
         # - tagalign # checks that struct tags are well aligned
         # - varnamelen # checks that the length of a variable's name matches its scope
         # - wrapcheck # checks that errors returned from external packages are wrapped
-        # - zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch zerolog.Event
+        # - zerologlint # detects the wrong usage of zerolog
 
         ## disabled
         # - containedctx # detects struct contained context.Context field
-        # - contextcheck # [too many false positives] checks the function whether use a non-inherited context
+        # - contextcheck # [too many false positives] checks function whether use a non-inherited context
         # - dogsled # checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
         # - dupword # [useless without config] checks for duplicate words in the source code
         # - err113 # [too strict] checks the errors handling expressions
-        # - errchkjson # checks types passed to the json encoding functions. Reports unsupported types.
+        # - errchkjson # checks types passed to the json encoding functions
         # - forcetypeassert # [replaced by errcheck] finds forced type assertions
-        # - gomodguard # [use more powerful depguard] allow and block lists linter
+        # - gomodguard # [use depguard] allow and block lists linter for Go module dependencies
         # - gosmopolitan # reports certain i18n/l10n anti-patterns in your Go codebase
         # - grouper # analyzes expression groups
         # - importas # enforces consistent import aliases
@@ -220,11 +208,13 @@ linters:
                     files:
                         - "$all"
                     # List of packages that are not allowed.
+                    # Entries can be a variable ($), a string prefix, or an exact match ($).
+                    # Default: []
                     deny:
                         - pkg: github.com/golang/protobuf
                           desc: >
-                            Use google.golang.org/protobuf instead,
-                            see https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules
+                              Use google.golang.org/protobuf instead, see
+                              https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules
                         - pkg: github.com/satori/go.uuid
                           desc: Use github.com/google/uuid instead, satori's package is not maintained
                         - pkg: github.com/gofrs/uuid$
@@ -261,7 +251,8 @@ linters:
                 - map
 
         exhaustruct:
-            # List of regular expressions to match type names that should be excluded from processing.
+            # List of regular expressions to match type names that should be excluded.
+            # Has precedence over `include`.
             # Default: []
             exclude:
                 # std libs
@@ -307,7 +298,7 @@ linters:
             statements: 50
 
         gochecksumtype:
-            # Presence of `default` case in switch statements satisfies exhaustiveness.
+            # Presence of `default` case in switch satisfies exhaustiveness, if all members are not listed.
             # Default: true
             default-signifies-exhaustive: false
 
@@ -334,6 +325,8 @@ linters:
             enable:
                 # Assert no unused link in godocs.
                 - no-unused-link
+                # Require proper doc links to standard library declarations.
+                - require-stdlib-doclink
 
         govet:
             # Enable all analyzers.
