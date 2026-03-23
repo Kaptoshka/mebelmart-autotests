@@ -26,7 +26,7 @@ func New() *slog.Logger {
 
 	consoleHandler := tint.NewHandler(os.Stdout, &tint.Options{
 		Level:      lvl,
-		TimeFormat: time.Now().Format("2006-01-02T15:04:05"),
+		TimeFormat: "2006-01-02T15:04:05",
 	})
 
 	logFile, err := os.OpenFile(
